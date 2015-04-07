@@ -1,4 +1,10 @@
 ; So these are just a few examples of how my assembler does syntax
+; the first line is a function definition. I'm not going to explain
+;  it here because I did it lower down. Suffice it to say that the 
+;  main body of code is a function because it has a local scope
+function start
+int local1
+int local2
 
 ; literals can be defined:
 dw 1 ; Inserts a 16-bit literal 1
@@ -43,15 +49,12 @@ setm LinkedList.Count, r1, r0 ;not sure of the order of operands yet
 ; Functions start with a sort of object definition for the parameters.
 ; This is so similar to object definitions, they are synonyms:
 function Print
+    int param1
+    ptr param2
     ptr string
     int length
-; however, functions also have an additional entry for the number of locals they will have:
-    locals 4
-; Which is similar enough to dw to be a synonym too. (I was lazy)
-
     ; (code)
-
-; (some sort of ret)
+ret
 
 
 ;TODO

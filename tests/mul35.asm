@@ -1,5 +1,7 @@
 ; Calculates the sum of all multiples of 3 or 5 under 1000
 ; This program should end with r5 = 0x38ed0 = 233168
+function main
+
 movc r1, 1
 movc r5, 0
 
@@ -21,3 +23,5 @@ loop:
 
 end:
     ;Don't know how to print a value to the screen
+    mov r0, r5 ;so I just put it in r0
+    ret
