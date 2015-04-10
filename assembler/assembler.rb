@@ -66,21 +66,9 @@ else
           f.each_line &process_line
         end
       else
-        if line.start_with? 'object ' or line.start_with? 'function' or busy_object
+        if line.start_with? 'object' or line.start_with? 'function' or busy_object
           parts = line.split(' ')
-          
-          if parts[0] == 'object' or parts[0] == 'function'
-            busy_object = {:name => parts[1]}
-            puts ""
-            puts "#{parts[0]} #{parts[1]}"
-            busy_object_keys = []
-            next
-          elsif parts[0] == 'ptr' or parts[0] == 'int'
-            busy_object[parts[1]] = parts[0]
-            puts "  #{parts[1]}: #{parts[0]}"
-            busy_object_keys << parts[1]
-            next
-          else
+          if busy_object and parts[0] != 'ptr' and parts[0] != 'int'
             #align objects defs to 16 bytes
             for i in (cur_byte)...(cur_byte/16.0).ceil*16
               if i % 2 == 0
@@ -116,6 +104,18 @@ else
             
             busy_object = nil
             busy_object_keys = []
+          end
+          if (parts[0] == 'object' or parts[0] == 'function') and not busy_object
+            busy_object = {:name => parts[1]}
+            puts ""
+            puts "#{parts[0]} #{parts[1]}"
+            busy_object_keys = []
+            next
+          elsif parts[0] == 'ptr' or parts[0] == 'int' and busy_object
+            busy_object[parts[1]] = parts[0]
+            puts "  #{parts[1]}: #{parts[0]}"
+            busy_object_keys << parts[1]
+            next
           end
         end
         if line.end_with? ':'
