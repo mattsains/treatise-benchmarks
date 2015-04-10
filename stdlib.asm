@@ -133,7 +133,7 @@ mov r1, r5           ;r1: len(a)
 getl r3, strconcat.a ;r3: a
 movc r4, 0           ;r4: index into a
 .mloop1:
-    jcmpc r1, 0, mloop1e, .mloop1e, .mloop1c
+    jcmpc r1, 0, .mloop1e, .mloop1e, .mloop1c
     .mloop1c:
     getb r5, r3, r4
     setb r0, r4, r5
