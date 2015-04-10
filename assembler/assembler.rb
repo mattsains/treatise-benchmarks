@@ -11,6 +11,7 @@ const_labels={}
 obj_member_labels={}
 
 labels={}
+last_global_label=nil
 cur_byte=0
 
 def hex n
@@ -72,6 +73,7 @@ else
           end
           cur_byte = (cur_byte/16.0).ceil*16
           labels[busy_object[:name]] = cur_byte
+          last_global_label = busy_object[:name]
 
           program[cur_byte] = "dq " + (busy_object.length - 1).to_s
           cur_byte += 8
@@ -101,9 +103,14 @@ else
         end
       end
       if line.end_with? ':'
-        label = line.match(/[^\d\W]\w*/)[0]
+        label = line.match(/\.?[^\d\W]\w*/)[0]
         puts "#{label}:"
-        labels[label] = cur_byte
+        if label.start_with? '.'
+          raise "Error: #{label} is a local label with no parent" unless last_global_label
+          labels[last_global_label+label] = cur_byte
+        else
+          labels[label] = cur_byte
+        end
       elsif line.start_with? 'dw'
         program[cur_byte] = line
         cur_byte += 2
@@ -205,12 +212,15 @@ else
     puts "================"
 
     code = []
+    last_global_label = nil
     program.each {|addr,instr|
       parts=[]
       instr.split.each {|s| parts+=s.split(',')}
-
+      
       labels.each {|k,v| puts "    #{k}:" if v==(code.length*2)}
-        
+
+      labels.each {|k,v| last_global_label = k if v==code.length*2 and not k.include? '.'} #don't care which
+      
       if parts[0] == 'dw'
         literal = Integer(parts[1])
         if literal >= 0
@@ -300,6 +310,10 @@ else
               puts "Error: #{instruction.opcode} expects a register in position #{index+1}"
             end
           elsif (expected_operand == :imm16) || (expected_operand == :immptr64)
+            if operand.start_with? '.'
+              raise "Local #{operand} with no global label" unless last_global_label
+              operand = last_global_label+operand
+            end
             if labels.has_key? operand
               imm = labels[operand] - instruction_end
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
@@ -322,6 +336,10 @@ else
             for index in (last_index+1)...parts.length
               operand = parts[index+1]
               if labels.has_key? operand
+                if operand.start_with? '.'
+                  raise "Local #{operand} with no global label" unless last_local_label
+                  operand = last_local_label+operand
+                end
                 imm = labels[operand] - instruction_end
                 puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
               elsif (operand.start_with? '[') && (operand.end_with? ']')
