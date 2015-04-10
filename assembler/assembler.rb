@@ -19,9 +19,10 @@ def hex n
 end
 
 def error line, msg
-  puts "="*35
+  puts "="*60
   puts "Error with '#{line}':"
   puts "  #{msg}"
+  puts "="*60
   abort
 end
 
@@ -122,9 +123,10 @@ else
           puts "#{label}:"
           if label.start_with? '.'
             error line, "Local #{label} with no parent" unless last_global_label
-            labels[last_global_label+label] = cur_byte
+            labels[last_global_label + label] = cur_byte
           else
             labels[label] = cur_byte
+            last_global_label = label
           end
         elsif line.start_with? 'dw'
           program[cur_byte] = line
@@ -156,11 +158,16 @@ else
             last_index=index
             expected_operand = instruction.operands[index]
             operand = parts[index+1]
-            if expected_operand == :immptr64 and is_int? operand
-              val = Integer(operand)
+            if expected_operand == :immptr64
+              if is_int? operand
+                val = Integer(operand)
+              elsif labels.has_key? operand
+                val = labels[operand] - (cur_byte + 2)
+              else
+                error line, "Couldn't make anything from #{operand}"
+              end
               if const_labels.has_key? val
                 label = const_labels[val]
-                
               else
                 label = "_imm_#{val.to_s.tr('-','m')}"
                 const_labels[val] = label
@@ -241,7 +248,7 @@ else
       labels.each {|k,v| puts "    #{k}:" if v==(code.length*2)}
 
       labels.each {|k,v| last_global_label = k if v==code.length*2 and not k.include? '.'} #don't care which
-      
+
       if parts[0] == 'dw'
         (literal = Integer(parts[1])) rescue error instr, "Couldn't coerce #{parts[1]} into a number"
         if literal >= 0
