@@ -68,8 +68,14 @@ instructions +=
 
 #Three-operand instructions
 instructions +=
-  ['getm','getmp','setm','setmp']
+  ['getm','getmp']
   .collect {|opcode| Inst.new opcode, [:reg, :reg, :imm16]}
+
+#different from spec, but generates the same code.
+# better for readability
+instructions +=
+  ['setm','setmp']
+  .collect {|opcode| Inst.new opcode, [:reg, :imm16, :reg]}
 
 instructions +=
   ['geta','getap','getb']

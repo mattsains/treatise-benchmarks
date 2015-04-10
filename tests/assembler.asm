@@ -53,7 +53,7 @@ object LinkedList
 ; Here's an example of using an object
 
 newp r1, LinkedList ;using label defined at start of object prototype
-setm LinkedList.Count, r1, r0 ;not sure of the order of operands yet
+setm r1, LinkedList.Count, r0
 
 ; You can also define functions
 ; Functions start with a sort of object definition for the parameters.
