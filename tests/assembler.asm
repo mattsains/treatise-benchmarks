@@ -2,7 +2,7 @@
 ; the first line is a function definition. I'm not going to explain
 ;  it here because I did it lower down. Suffice it to say that the 
 ;  main body of code is a function because it has a local scope
-function start
+function assembler
 int local1
 int local2
 
@@ -26,6 +26,16 @@ addc r0, 1
 loop:
     addc r0, 1
     jmp loop
+
+;Even local labels
+global:
+.loop:
+    addc r0, 1
+    jmp global.loop
+    jmp .loop
+global2:
+jmp global.loop
+
 
 ; Object prototypes can be defined:
 object LinkedList
@@ -56,6 +66,8 @@ function Print
     ; (code)
 ret
 
+;You can include files:
+%include file.asm
 
 ;TODO
 ; Make ri/pi different registers and do type checking on it.
