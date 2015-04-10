@@ -50,45 +50,53 @@ else
 
     busy_object = nil
     busy_object_keys = []
-    
-    f.each_line do |line|
+
+    #after this massive block,
+    # f.each_line &process_line
+    process_line = proc do |line|
       line = line.split(';')[0] #remove comments
       line.strip! #remove spaces
 
       next if line.empty? #skip empty lines
-      
-      if line.start_with? 'object ' or line.start_with? 'function' or busy_object
+
+      if line.start_with? '%include'
         parts = line.split(' ')
-        
-        if parts[0] == 'object' or parts[0] == 'function'
-          busy_object = {:name => parts[1]}
-          puts ""
-          puts "#{parts[0]} #{parts[1]}"
-          busy_object_keys = []
-          next
-        elsif parts[0] == 'ptr' or parts[0] == 'int'
-          busy_object[parts[1]] = parts[0]
-          puts "  #{parts[1]}: #{parts[0]}"
-          busy_object_keys << parts[1]
-          next
-        else
-          #align objects defs to 16 bytes
-          for i in (cur_byte)...(cur_byte/16.0).ceil*16
-            if i % 2 == 0
-              program[i] = 'dw 0'
+        File.open(File.dirname(f.path)+'/'+parts[1],"r") do |f|
+          f.each_line &process_line
+        end
+      else
+        if line.start_with? 'object ' or line.start_with? 'function' or busy_object
+          parts = line.split(' ')
+          
+          if parts[0] == 'object' or parts[0] == 'function'
+            busy_object = {:name => parts[1]}
+            puts ""
+            puts "#{parts[0]} #{parts[1]}"
+            busy_object_keys = []
+            next
+          elsif parts[0] == 'ptr' or parts[0] == 'int'
+            busy_object[parts[1]] = parts[0]
+            puts "  #{parts[1]}: #{parts[0]}"
+            busy_object_keys << parts[1]
+            next
+          else
+            #align objects defs to 16 bytes
+            for i in (cur_byte)...(cur_byte/16.0).ceil*16
+              if i % 2 == 0
+                program[i] = 'dw 0'
+              end
             end
-          end
-          cur_byte = (cur_byte/16.0).ceil*16
-          labels[busy_object[:name]] = cur_byte
-          last_global_label = busy_object[:name]
-
-          program[cur_byte] = "dq " + (busy_object.length - 1).to_s
-          cur_byte += 8
-
-          bitmap = 0
-          bitmap_has_content = false
-          busy_object_keys.each_index {|i|
-            k = busy_object_keys[i]
+            cur_byte = (cur_byte/16.0).ceil*16
+            labels[busy_object[:name]] = cur_byte
+            last_global_label = busy_object[:name]
+            
+            program[cur_byte] = "dq " + (busy_object.length - 1).to_s
+            cur_byte += 8
+            
+            bitmap = 0
+            bitmap_has_content = false
+            busy_object_keys.each_index {|i|
+              k = busy_object_keys[i]
               obj_member_labels[busy_object[:name]+"."+k] = i
               if i % 64 == 0 and i != 0
                 program[cur_byte] = "dq #{bitmap}"
@@ -98,93 +106,96 @@ else
               end
               bitmap |= (busy_object[k] == 'ptr'?1:0) << (i%64)
               bitmap_has_content = true
-          }
-
-          if bitmap_has_content
-            program[cur_byte] = "dq #{bitmap}"
-            cur_byte += 8
+            }
+            
+            if bitmap_has_content
+              program[cur_byte] = "dq #{bitmap}"
+              cur_byte += 8
+            end
+            
+            busy_object = nil
+            busy_object_keys = []
           end
-
-          busy_object = nil
-          busy_object_keys = []
         end
-      end
-      if line.end_with? ':'
-        label = line.match(/\.?[^\d\W]\w*/)[0]
-        puts "#{label}:"
-        if label.start_with? '.'
-          error line, "Local #{label} with no parent" unless last_global_label
-          labels[last_global_label+label] = cur_byte
+        if line.end_with? ':'
+          label = line.match(/\.?[^\d\W]\w*/)[0]
+          puts "#{label}:"
+          if label.start_with? '.'
+            error line, "Local #{label} with no parent" unless last_global_label
+            labels[last_global_label+label] = cur_byte
+          else
+            labels[label] = cur_byte
+          end
+        elsif line.start_with? 'dw'
+          program[cur_byte] = line
+          cur_byte += 2
+        elsif line.start_with? 'dq'
+          program[cur_byte] = line
+          cur_byte += 8
+        elsif line == 'align 8'
+          for i in (cur_byte)...(cur_byte/8.0).ceil*8
+            if i % 2 == 0
+              program[i] = 'dw 0'
+            end
+          end
+          cur_byte = (cur_byte/8.0).ceil * 8
         else
-          labels[label] = cur_byte
-        end
-      elsif line.start_with? 'dw'
-        program[cur_byte] = line
-        cur_byte += 2
-      elsif line.start_with? 'dq'
-        program[cur_byte] = line
-        cur_byte += 8
-      elsif line == 'align 8'
-        for i in (cur_byte)...(cur_byte/8.0).ceil*8
-          if i % 2 == 0
-            program[i] = 'dw 0'
+          parts=[]
+          line.split.each {|s| parts+=s.split(',')}
+          puts " #{parts[0]} "+parts[1, parts.length-1].join(', ')
+          instruction = $instructions.find {|inst| inst.opcode == parts[0]}
+          if instruction.operands.length!=parts.length-1
+            error line, "#{instruction.opcode} given wrong number of arguments "+
+                        "(#{parts.length-1} for #{instruction.operands})"
           end
-        end
-        cur_byte = (cur_byte/8.0).ceil * 8
-      else
-        parts=[]
-        line.split.each {|s| parts+=s.split(',')}
-        puts " #{parts[0]} "+parts[1, parts.length-1].join(', ')
-        instruction = $instructions.find {|inst| inst.opcode == parts[0]}
-        if instruction.operands.length!=parts.length-1
-          error line, "#{instruction.opcode} given wrong number of arguments "+
-                "(#{parts.length-1} for #{instruction.operands})"
-        end
-        last_index = 0
-        instruction.operands.each_index {|index|
-          last_index=index
-          expected_operand = instruction.operands[index]
-          operand = parts[index+1]
-          if expected_operand == :immptr64 and is_int? operand
-            val = Integer(operand)
-            if const_labels.has_key? val
-              label = const_labels[val]
-              
-            else
-              label = "_imm_#{val.to_s.tr('-','m')}"
-              const_labels[val] = label
-              program_epilogue << "align 8"
-              program_epilogue << "#{label}:"
-              program_epilogue << "dq #{val}"
-            end
-            parts[index+1] = label
-            line = parts[0]+" "+parts[1, parts.length-1].join(",")
-          end
-        }
-        if instruction.operands[-1] == :arbimm16
-          for index in (last_index+1)...parts.length
+          last_index = 0
+          instruction.operands.each_index {|index|
+            last_index=index
+            expected_operand = instruction.operands[index]
             operand = parts[index+1]
-            val = Integer(operand)
-            if const_labels.has_key? val
-              label = const_labels[val]
-              
-            else
-              label = "_imm_#{val.to_s.tr('-','m')}"
-              const_labels[val] = label
-              program_epilogue << "align 8"
-              program_epilogue << "#{label}:"
-              program_epilogue << "dq #{val}"
+            if expected_operand == :immptr64 and is_int? operand
+              val = Integer(operand)
+              if const_labels.has_key? val
+                label = const_labels[val]
+                
+              else
+                label = "_imm_#{val.to_s.tr('-','m')}"
+                const_labels[val] = label
+                program_epilogue << "align 8"
+                program_epilogue << "#{label}:"
+                program_epilogue << "dq #{val}"
+              end
+              parts[index+1] = label
+              line = parts[0]+" "+parts[1, parts.length-1].join(",")
             end
-            parts[index+1] = label
-            line = parts[0]+" "+parts[1, parts.length-1].join(",")
+          }
+          if instruction.operands[-1] == :arbimm16
+            for index in (last_index+1)...parts.length
+              operand = parts[index+1]
+              val = Integer(operand)
+              if const_labels.has_key? val
+                label = const_labels[val]
+                
+              else
+                label = "_imm_#{val.to_s.tr('-','m')}"
+                const_labels[val] = label
+                program_epilogue << "align 8"
+                program_epilogue << "#{label}:"
+                program_epilogue << "dq #{val}"
+              end
+              parts[index+1] = label
+              line = parts[0]+" "+parts[1, parts.length-1].join(",")
+            end
           end
+          
+          program[cur_byte] = line
+          cur_byte += 2*(parts.length - instruction.operands.count(:reg))
         end
-        
-        program[cur_byte] = line
-        cur_byte += 2*(parts.length - instruction.operands.count(:reg))
       end
     end
-
+    
+    f.each_line &process_line
+    
     program_epilogue.each {|line|
       #These can only have constants and labels
       if line.end_with? ':'
