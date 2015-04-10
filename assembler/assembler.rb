@@ -18,6 +18,13 @@ def hex n
   ("%04x"%n).tr('..','ff').reverse[0, 4].reverse
 end
 
+def error line, msg
+  puts "="*35
+  puts "Error with '#{line}':"
+  puts "  #{msg}"
+  abort
+end
+
 if argv_without_flags[0] == nil
   puts "Matt's assembler"
   puts ""
@@ -106,7 +113,7 @@ else
         label = line.match(/\.?[^\d\W]\w*/)[0]
         puts "#{label}:"
         if label.start_with? '.'
-          raise "Error: #{label} is a local label with no parent" unless last_global_label
+          error line, "Local #{label} with no parent" unless last_global_label
           labels[last_global_label+label] = cur_byte
         else
           labels[label] = cur_byte
@@ -130,7 +137,7 @@ else
         puts " #{parts[0]} "+parts[1, parts.length-1].join(', ')
         instruction = $instructions.find {|inst| inst.opcode == parts[0]}
         if instruction.operands.length!=parts.length-1
-          raise "Error - #{instruction.opcode} given wrong number of arguments "+
+          error line, "#{instruction.opcode} given wrong number of arguments "+
                 "(#{parts.length-1} for #{instruction.operands})"
         end
         last_index = 0
@@ -197,7 +204,7 @@ else
         end
         cur_byte = (cur_byte/8.0).ceil * 8
       else
-        raise "Error - invalid data in program epilogue"
+        raise "Critical Error: #{line} - invalid data in program epilogue"
       end
     }
     puts ""
@@ -222,20 +229,20 @@ else
       labels.each {|k,v| last_global_label = k if v==code.length*2 and not k.include? '.'} #don't care which
       
       if parts[0] == 'dw'
-        literal = Integer(parts[1])
+        (literal = Integer(parts[1])) rescue error instr, "Couldn't coerce #{parts[1]} into a number"
         if literal >= 0
-          raise "Constant #{literal} too big for 16 bit" if (literal>>16)!=0
+          error instr, "Constant #{literal} too big for 16 bit" if (literal>>16)!=0
         else
-          raise "Constant #{literal} too big for 16 bit" if (~(literal>>16))!=0
+          error instr, "Constant #{literal} too big for 16 bit" if (~(literal>>16))!=0
         end
         puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"     (dw #{literal})"
         code << literal
       elsif parts[0] == 'dq'
-        literal = Integer(parts[1])
+        (literal = Integer(parts[1])) rescue error instr, "Couldn't coerce #{parts[1]} into a number"
         if literal >= 0
-          raise "Constant #{literal} too big for 64 bit" if (literal>>64)!=0
+          error instr, "Constant #{literal} too big for 64 bit" if (literal>>64)!=0
         else
-          raise "Constant #{literal} too big for 64 bit" if (~(literal>>64))!=0
+          error instr, "Constant #{literal} too big for 64 bit" if (~(literal>>64))!=0
         end
         puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"     (dq #{literal})"
         code << (literal&0xFFFF)
@@ -244,7 +251,7 @@ else
         code << ((literal>>48)&0xFFFF)
       else
         instruction = $instructions.find {|inst| inst.opcode == parts[0]}
-        raise "No such instruction '#{parts[0]}'" unless instruction
+        error instr, "No such instruction '#{parts[0]}'" unless instruction
         reg_count = 1
         if instruction.operands[0] == :reg
           if conventional
@@ -307,11 +314,11 @@ else
               end
               reg_count *= 6
             else
-              puts "Error: #{instruction.opcode} expects a register in position #{index+1}"
+              puts "#{instruction.opcode} expects a register in position #{index+1}"
             end
           elsif (expected_operand == :imm16) || (expected_operand == :immptr64)
             if operand.start_with? '.'
-              raise "Local #{operand} with no global label" unless last_global_label
+              error instr, "Local #{operand} with no parent" unless last_global_label
               operand = last_global_label+operand
             end
             if labels.has_key? operand
@@ -324,11 +331,11 @@ else
               if obj_member_labels.has_key? operand
                 imm = obj_member_labels[operand]
               else
-                imm = Integer(operand)
+                (imm = Integer(operand)) rescue error instr, "Couldn't coerce '#{operand}' into a number - possible invalid label?"
               end
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"#{imm}".rjust(4)+" (const)"
             else
-              raise "Error: Couldn't make anything from #{operand}"
+              error instr, "Couldn't make anything from #{operand}"
             end
             code << imm
           end
@@ -337,7 +344,7 @@ else
               operand = parts[index+1]
               if labels.has_key? operand
                 if operand.start_with? '.'
-                  raise "Local #{operand} with no global label" unless last_local_label
+                  error instr, "Local #{operand} with no parent" unless last_local_label
                   operand = last_local_label+operand
                 end
                 imm = labels[operand] - instruction_end
@@ -346,10 +353,10 @@ else
                 imm = Integer(operand[1, operand.length-2])
                 puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (ptr)"
               elsif expected_operand == :imm16
-                imm = Integer(operand)
+                (imm = Integer(operand)) rescue error instr, "Couldn't coerce #{operand} into a number - possible invalid label?"
                 puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"#{imm}".rjust(4)+" (const)"
               else
-                raise "Error: Couldn't make anything from #{operand}"
+                error instr, "Couldn't make anything from #{operand}"
               end
               code << imm
             end
@@ -384,6 +391,3 @@ else
     IO.write(filename, code.pack('s*'))
   end
 end
-
-
-
