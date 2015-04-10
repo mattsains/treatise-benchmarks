@@ -144,6 +144,9 @@ else
           line.split.each {|s| parts+=s.split(',')}
           puts " #{parts[0]} "+parts[1, parts.length-1].join(', ')
           instruction = $instructions.find {|inst| inst.opcode == parts[0]}
+          if instruction == nil
+            error line, "#{parts[0]} is not a valid instruction"
+          end
           if instruction.operands.length!=parts.length-1
             error line, "#{instruction.opcode} given wrong number of arguments "+
                         "(#{parts.length-1} for #{instruction.operands})"
