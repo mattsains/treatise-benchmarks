@@ -18,6 +18,10 @@ def hex n
   ("%04x"%n).tr('..','ff').reverse[0, 4].reverse
 end
 
+def bin n
+  ("%b"%n)
+end
+
 def error line, msg
   puts "="*60
   puts "Error with '#{line}':"
@@ -273,67 +277,62 @@ else
       else
         instruction = $instructions.find {|inst| inst.opcode == parts[0]}
         error instr, "No such instruction '#{parts[0]}'" unless instruction
-        reg_count = 1
+        
         if instruction.operands[0] == :reg
           if conventional
-            print "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex $instructions.index(instruction) << 6)+" (#{instruction.opcode})"
+            print "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex $instructions.index(instruction) << 9)+" (#{instruction.opcode})"
           else
             print "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex instruction.offset)+" (#{instruction.opcode})"
           end
         else
           if conventional
-            puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex $instructions.index(instruction) << 6)+" (#{instruction.opcode})"
+            puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex $instructions.index(instruction) << 9)+" (#{instruction.opcode})"
           else
             puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex instruction.offset)+" (#{instruction.opcode})"
           end
         end
         if conventional
-          code << ($instructions.index(instruction) << 6)
+          code << (instruction.conventional_offset << 9)
         else
           code << instruction.offset
         end
         
         instruction_end = code.length*2
         last_index = 0
+        reg_count = 0
         instruction.operands.each_index do |index|
           last_index = index
           expected_operand = instruction.operands[index]
           operand = parts[index+1]
           
           if expected_operand == :reg
-            if (operand.start_with? 'r') || (operand.start_with? 'p')
+            if (operand.start_with? 'r') or (operand.start_with? 'p')
               reg = operand[1,operand.length-1].to_i
               reg_text = if real_reg then $r[reg] else "r#{reg}" end
-
+              
               if conventional
-                if reg_count == 1
-                  reg_val = reg << 3
+                reg_val = reg << (3**reg_count)
+              else
+                reg_val = reg*(6**reg_count)
+              end
+              if instruction.operands[index+1] == :reg
+                if conventional
+                  print " +#{bin reg_val}(#{reg_text})"
                 else
-                  reg_val = reg
-                end
-                if instruction.operands[index+1] == :reg
                   print " +#{reg_val}(#{reg_text})"
+                end
+              else
+                if conventional
+                  puts " +#{bin reg_val}(#{reg_text})"
                 else
                   puts " +#{reg_val}(#{reg_text})"
                 end
-              else
-                if instruction.operands[index+1] == :reg
-                  print " +#{reg*reg_count}(#{reg_text})"
-                else
-                  puts " +#{reg*reg_count}(#{reg_text})"
-                end
               end
+
               instruction_index = instruction_end/2 - 1
-              if conventional
-                if reg_count == 1
-                  code[instruction_index] |= reg << 3
-                else
-                  code[instruction_index] |= reg
-                end
-              else
-                code[instruction_index] += reg*reg_count
-              end
-              reg_count *= 6
+              code[instruction_index] += reg_val
+              
+              reg_count += 1
             else
               puts "#{instruction.opcode} expects a register in position #{index+1}"
             end

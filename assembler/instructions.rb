@@ -3,6 +3,7 @@ class Inst
   attr_accessor :disallow_trivial_between #[0,1] means between reg argument 0 and reg argument 1
   attr_accessor :operands # a list of symbols - :reg, :imm16, :immptr64, :arbimm16
   attr_accessor :offset
+  attr_accessor :conventional_offset
 
   def initialize(opcode, operands, disallow_trivial_between=[])
     @opcode = opcode
@@ -136,6 +137,8 @@ instructions.each {|instruction| instruction.offset = offsets[instruction.opcode
 
 # Sort instructions by their numbers
 instructions.sort_by! {|instruction| instruction.offset }
+
+instructions.each_index {|i| instructions[i].conventional_offset = i}
 
 # Validate instructions
 instructions.each {|instruction|
