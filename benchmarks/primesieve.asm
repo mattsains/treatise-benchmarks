@@ -3,7 +3,8 @@ function primesieve
   int n
   ptr list
   int x
-movc r1, 100000 ;find primes up to this number
+movc r1, 1000000 ;find primes up to this number
+; for 1 000 000, should take around three minutes
 setl .n, r1
 
 newp r0, LinkedList ;r0: linked list

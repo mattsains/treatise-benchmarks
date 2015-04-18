@@ -3,13 +3,14 @@ function ackermann
     int n
     int output
 ;hardcoded inputs
-movc r0, 3 ;m
-movc r1, 2 ;n
+movc r0, 4 ;m
+movc r1, 1 ;n
 setl .m, r0
 setl .n, r1
 call A, 0, 2
 ;r0 now has the result of the ackermann function
-;should be 29 for (3,2)
+;should be 65533 for (4,1)
+; takes about 3 minutes
 setl .output, r0
 call i_to_s, .output, 1
 out r0
