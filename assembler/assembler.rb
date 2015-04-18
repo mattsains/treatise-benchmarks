@@ -311,7 +311,7 @@ else
               reg_text = if real_reg then $r[reg] else "r#{reg}" end
               
               if conventional
-                reg_val = reg << (3**reg_count)
+                reg_val = reg << 3*reg_count
               else
                 reg_val = reg*(6**reg_count)
               end
