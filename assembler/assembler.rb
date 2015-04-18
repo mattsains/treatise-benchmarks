@@ -19,7 +19,7 @@ def hex n
 end
 
 def bin n
-  ("%b"%n)
+  ("0b%b"%n)
 end
 
 def error line, msg
@@ -334,7 +334,7 @@ else
               
               reg_count += 1
             else
-              puts "#{instruction.opcode} expects a register in position #{index+1}"
+              error instr, "#{instruction.opcode} expects a register in position #{index+1}"
             end
           elsif (expected_operand == :imm16) || (expected_operand == :immptr64)
             if operand.start_with? '.'
