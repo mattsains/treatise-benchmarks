@@ -98,7 +98,7 @@ getl r1, strconcat.a ;r1: a
 movc r0, 0 ;r0: length
 .cloop1:
     getb r2, r1, r0
-    jcmp r2, 0, .cloop1e, .cloop1e, .cloop1c
+    jcmpc r2, 0, .cloop1e, .cloop1e, .cloop1c
     .cloop1c:
     addc r0, 1
     jmp .cloop1
@@ -108,7 +108,7 @@ getl r1, strconcat.b ;r1: b
 movc r2, 0 ;r2: index
 .cloop2:
     getb r4, r1, r2
-    jcmp r4, 0, .cloop2e, .cloop2e, .cloop2c
+    jcmpc r4, 0, .cloop2e, .cloop2e, .cloop2c
     .cloop2c:
     addc r0, 1
     addc r2, 1
