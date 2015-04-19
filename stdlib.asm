@@ -29,7 +29,8 @@ movc r2, 0 ;r2: index into output
 jcmpc r1, 0, $, .positive, .positive
 movc r3, 45 ;ASCII minus
 setb r0, r2, r3
-xor r1, r2 ;just using r2=0 to invert r1
+movc r3, -1 ;all ones
+xor r1, r3 ;inverts r1
 addc r1, 1
 addc r2, 1
 .positive:
