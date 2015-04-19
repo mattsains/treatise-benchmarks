@@ -10,8 +10,7 @@ loop:
     mov r2, r1
     divc r1, 3
     mov r1, r2
-    jcmpc r0, 0, acc, acc, cont
-    cont:
+    jcmpc r0, 0, acc, acc, $
     divc r1, 5
     mov r1, r2
     jcmpc r0, 0, acc, acc, reject
@@ -20,7 +19,7 @@ loop:
     reject:
     addc r1, 1
 
-    jcmpc r1, 1000, loop, end, end
+    jcmpc r1, 1000, loop, $, $
 
 end:
     setl mul35.output, r5

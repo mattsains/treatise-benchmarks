@@ -9,8 +9,7 @@ outloop:
          loop:
          addc r2, -1
 
-         jcmpc r2, 1, prime, prime, cont ;if r2 1, prime. else keep going
-         cont:
+         jcmpc r2, 1, prime, prime, $ ;if r2 1, prime. else keep going
          mov r3, r1
          div r1, r2
          mov r1, r3
