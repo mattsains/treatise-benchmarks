@@ -3,7 +3,8 @@ function primesieve
   int n
   ptr list
   int x
-movc r1, 100000 ;find primes up to this number
+movc r1, 1000000 ;find primes up to this number
+; for 1 000 000, should take around three minutes
 setl .n, r1
 
 newp r0, LinkedList ;r0: linked list
@@ -17,19 +18,17 @@ movc r2, 2
   setmp r0, LinkedList.next, r3
   movp r0, r3
   addc r2, 1
-  jcmp r2, r1, .cloop, .cloop, .cnext
-.cnext:
+  jcmp r2, r1, .cloop, .cloop, .cend
+.cend:
 null r2
 setmp r0, LinkedList.next, r2
 movp r0, r4 ;rewind linked list
 
 .loop:
-  jnullp r0, .next, .end
-  .next:
+  jnullp r0, $, .end
   getm r1, r0, LinkedList.value
   getmp r0, r0, LinkedList.next
-  jnullp r0, .next2, .end
-  .next2:
+  jnullp r0, $, .end
   setl primesieve.list, r0
   setl primesieve.x, r1
   call removeMultiples, primesieve.list, 2
@@ -38,8 +37,7 @@ movp r0, r4 ;rewind linked list
 mov r1, r4 ;rewind list again
 
 .ploop:
-  jnullp r1, .pnext, .pend
-  .pnext:
+  jnullp r1, $, .pend
   getm r0, r1, LinkedList.value
   setl primesieve.x, r0
   call i_to_s, primesieve.x, 1
@@ -63,11 +61,9 @@ function removeMultiples
   getl r2, .n
   mov r3, r2
   .loop:
-    jnullp r1, .next, .end
-    .next:
+    jnullp r1, $, .end
     getmp r3, r1, LinkedList.next
-    jnullp r3, .next2, .end
-    .next2:
+    jnullp r3, $, .end
     getm r3, r3, LinkedList.value
     div r3, r2
     jcmpc r0, 0, .remove, .remove, .continue

@@ -19,7 +19,7 @@ def hex n
 end
 
 def bin n
-  ("%b"%n)
+  ("0b%b"%n)
 end
 
 def error line, msg
@@ -167,6 +167,8 @@ else
                 val = Integer(operand)
               elsif labels.has_key? operand
                 val = labels[operand] - (cur_byte + 2)
+              elsif operand == '$'
+                val = 2*(parts.length - instruction.operands.count(:reg) - 1)
               else
                 error line, "Couldn't make anything from #{operand}"
               end
@@ -189,7 +191,6 @@ else
               val = Integer(operand)
               if const_labels.has_key? val
                 label = const_labels[val]
-                
               else
                 label = "_imm_#{val.to_s.tr('-','m')}"
                 const_labels[val] = label
@@ -246,6 +247,9 @@ else
     code = []
     last_global_label = nil
     program.each {|addr,instr|
+      _next = (program.select {|a,i| a > addr}) .min_by {|k,v| k}
+      next_addr = _next.nil? ? nil :  _next[0]
+      next_instr = _next.nil? ? nil : _next[1]
       parts=[]
       instr.split.each {|s| parts+=s.split(',')}
       
@@ -311,7 +315,7 @@ else
               reg_text = if real_reg then $r[reg] else "r#{reg}" end
               
               if conventional
-                reg_val = reg << (3**reg_count)
+                reg_val = reg << 3*reg_count
               else
                 reg_val = reg*(6**reg_count)
               end
@@ -334,7 +338,7 @@ else
               
               reg_count += 1
             else
-              puts "#{instruction.opcode} expects a register in position #{index+1}"
+              error instr, "#{instruction.opcode} expects a register in position #{index+1}"
             end
           elsif (expected_operand == :imm16) || (expected_operand == :immptr64)
             if operand.start_with? '.'
@@ -344,6 +348,10 @@ else
             if labels.has_key? operand
               imm = labels[operand] - instruction_end
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
+            elsif operand == '$'
+              error instr, "No next instruction" if next_addr.nil?
+              imm = next_addr - instruction_end
+              puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" ($)"
             elsif (operand.start_with? '[') && (operand.end_with? ']')
               imm = Integer(operand[1, operand.length-2])
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (ptr)"
@@ -369,6 +377,9 @@ else
                 end
                 imm = labels[operand] - instruction_end
                 puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
+              elsif operand == '$'
+                error instr, "No next instruction" if next_addr.nil?
+                imm = next_addr - instruction_end
               elsif (operand.start_with? '[') && (operand.end_with? ']')
                 imm = Integer(operand[1, operand.length-2])
                 puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (ptr)"

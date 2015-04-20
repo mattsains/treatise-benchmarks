@@ -7,8 +7,7 @@ getl r1, pow.x ;r1: x
 movc r0, 1 ;r0: 1
 getl r2, pow.y ;r2: y
 .loop:
-    jcmpc r2, 0, .eloop, .eloop, .next
-    .next:
+    jcmpc r2, 0, .eloop, .eloop, $
     mul r0, r1
     addc r2, -1
     jmp .loop
@@ -27,11 +26,11 @@ newa r0, r1 ;r0: output
 getl r1, i_to_s.i ;r1: i
 movc r2, 0 ;r2: index into output
 
-jcmpc r1, 0, .next, .positive, .positive
-.next:
+jcmpc r1, 0, $, .positive, .positive
 movc r3, 45 ;ASCII minus
 setb r0, r2, r3
-xor r1, r2 ;just using r2=0 to invert r1
+movc r3, -1 ;all ones
+xor r1, r3 ;inverts r1
 addc r1, 1
 addc r2, 1
 .positive:
@@ -54,7 +53,7 @@ mov r0, r1
 mov r4, r0
 .preloop:
     div r4, r3 ;r4: value of nth digit
-    jcmpc r4, 0, .prenext, .prenext, .endpre
+    jcmpc r4, 0, $, $, .endpre
     .prenext:
     mov r4, r0
     divc r3, 10
@@ -98,8 +97,7 @@ getl r1, strconcat.a ;r1: a
 movc r0, 0 ;r0: length
 .cloop1:
     getb r2, r1, r0
-    jcmp r2, 0, .cloop1e, .cloop1e, .cloop1c
-    .cloop1c:
+    jcmpc r2, 0, .cloop1e, .cloop1e, $
     addc r0, 1
     jmp .cloop1
 .cloop1e:
@@ -108,8 +106,7 @@ getl r1, strconcat.b ;r1: b
 movc r2, 0 ;r2: index
 .cloop2:
     getb r4, r1, r2
-    jcmp r4, 0, .cloop2e, .cloop2e, .cloop2c
-    .cloop2c:
+    jcmpc r4, 0, .cloop2e, .cloop2e, $
     addc r0, 1
     addc r2, 1
     jmp .cloop2
@@ -133,8 +130,7 @@ mov r1, r5           ;r1: len(a)
 getl r3, strconcat.a ;r3: a
 movc r4, 0           ;r4: index into a
 .mloop1:
-    jcmpc r1, 0, .mloop1e, .mloop1e, .mloop1c
-    .mloop1c:
+    jcmpc r1, 0, .mloop1e, .mloop1e, $
     getb r5, r3, r4
     setb r0, r4, r5
     addc r1, -1
@@ -145,8 +141,7 @@ getl r3, strconcat.b
 mov r1, r4
 movc r4, 0
 .mloop2:
-    jcmpc r2, 0, .mloop2e, .mloop2e, .mloop2c
-    .mloop2c:
+    jcmpc r2, 0, .mloop2e, .mloop2e, $
     getb r5, r3, r4
     setb r0, r1, r5
     addc r4, 1

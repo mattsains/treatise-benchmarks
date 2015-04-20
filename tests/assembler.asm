@@ -36,6 +36,9 @@ global:
 global2:
 jmp global.loop
 
+;You can refer to the next isntruction by $:
+jmp $ ;==no-op
+jcmp r0, r1, $, $, $ ;longer no-op
 
 ; Object prototypes can be defined:
 object LinkedList
