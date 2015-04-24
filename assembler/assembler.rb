@@ -31,7 +31,7 @@ def error line, msg
 end
 
 if argv_without_flags[0] == nil
-  puts "Matt's assembler"
+  puts "Doug's modified 'Matt's assembler'"
   puts ""
   puts "Invocation:"
   puts " assembler.rb input_file [output_file] [-r -c]"
@@ -304,6 +304,8 @@ else
         instruction_end = code.length*2
         last_index = 0
         reg_count = 0
+        save_registers = []
+        reg_val = 0
         instruction.operands.each_index do |index|
           last_index = index
           expected_operand = instruction.operands[index]
@@ -317,7 +319,35 @@ else
               if conventional
                 reg_val = reg << 3*reg_count
               else
-                reg_val = reg*(6**reg_count)
+                save_registers << reg
+                if instruction.operands[index+1] != :reg
+                  save_reg_count = save_registers.count
+                  
+                  if instruction.disallow_trivial_between.empty?
+                    save_registers.each_index {|index|
+                      save_reg_count -= 1
+                      reg_val += (6**save_reg_count)*save_registers[index]
+                    }
+                  else
+                    #this code assumes the trivial case can only happen between 2 registers
+                    a = instruction.disallow_trivial_between[0]
+                    b = instruction.disallow_trivial_between[1]
+                    if save_registers[a] == save_registers[b]
+                      raise "Error - #{instruction.opcode} given illegal arguments "
+                    end
+                    save_registers[a] *= (5.0/6.0)
+                    extra = 0
+                    if save_registers[b] > save_registers[a]
+                      extra = -(6**(save_registers.length - b -1))
+                    end
+
+                    save_registers.each_index {|index|
+                      save_reg_count -= 1
+                      reg_val += ((6**save_reg_count)*save_registers[index]).round
+                    }
+                    reg_val += extra                    
+                  end
+                end
               end
               if instruction.operands[index+1] == :reg
                 if conventional
@@ -333,7 +363,7 @@ else
                 end
               end
 
-              instruction_index = instruction_end/2 - 1
+              instruction_index = instruction_end/2 - 1 
               code[instruction_index] += reg_val
               
               reg_count += 1

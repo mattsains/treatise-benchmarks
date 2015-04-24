@@ -3,7 +3,6 @@ class Inst
   attr_accessor :disallow_trivial_between #[0,1] means between reg argument 0 and reg argument 1
   attr_accessor :operands # a list of symbols - :reg, :imm16, :immptr64, :arbimm16
   attr_accessor :offset
-  attr_accessor :conventional_offset
 
   def initialize(opcode, operands, disallow_trivial_between=[])
     @opcode = opcode
@@ -27,7 +26,7 @@ instructions +=
 
 #instructions with just one operand (register)
 instructions +=
-  ['null', 'in', 'out']
+  ['in', 'out']
   .collect {|opcode| Inst.new opcode, [:reg]}
 
 #instructions with just one operand (immediate)
@@ -46,7 +45,7 @@ instructions +=
 
 #instructions with two registers where the trivial case is disallowed
 instructions +=
-  ['sub','div','and','or','xor','shl','shr','sar','mov','movp','newpa','newa']
+  ['sub','div','and','or','xor','shl','shr','sar','mov','newa']
   .collect {|opcode| Inst.new opcode, [:reg, :reg], [0,1]}
 
 #instructions with one register and one 16b immediate
@@ -55,7 +54,7 @@ instructions +=
   .collect {|opcode| Inst.new opcode, [:reg, :immptr64]}
 
 instructions +=
-  ['shlc','shrc','sarc','getl','getlp','newp']
+  ['shlc','shrc','sarc','getl','newp']
   .collect {|opcode| Inst.new opcode, [:reg, :imm16]}
 
 #instructions with one ptr and one register
@@ -64,26 +63,20 @@ instructions +=
   .collect {|opcode| Inst.new opcode, [:immptr64, :reg]}
 
 instructions +=
-  ['setl','setlp']
+  ['setl']
   .collect {|opcode| Inst.new opcode, [:imm16, :reg]}
 
 #Three-operand instructions
 instructions +=
-  ['getm','getmp']
+  ['getm','setm']
   .collect {|opcode| Inst.new opcode, [:reg, :reg, :imm16]}
 
-#different from spec, but generates the same code.
-# better for readability
 instructions +=
-  ['setm','setmp']
-  .collect {|opcode| Inst.new opcode, [:reg, :imm16, :reg]}
-
-instructions +=
-  ['geta','getap','getb']
+  ['getb']
   .collect {|opcode| Inst.new opcode, [:reg, :reg, :reg], [1,2]}
 
 instructions +=
-  ['seta','setap','setb']
+  ['setb']
   .collect {|opcode| Inst.new opcode, [:reg, :reg, :reg], [0,1]}
 
 #strange instructions
@@ -100,10 +93,6 @@ instructions +=
   .collect {|opcode| Inst.new opcode, [:reg, :immptr64, :imm16, :imm16, :imm16]}
 
 instructions +=
-  ['jeqp']
-  .collect {|opcode| Inst.new opcode, [:reg, :reg, :imm16, :imm16], [0,1]}
-
-instructions +=
   ['jnullp']
   .collect {|opcode| Inst.new opcode, [:reg, :imm16, :imm16]}
 
@@ -113,18 +102,49 @@ instructions +=
 
 offsets =
   {
-    'add' => 0, 'addc' => 36, 'sub' => 42, 'csub' => 78, 'mul' => 84,
-    'mulc' => 120, 'div' => 126, 'divc' => 162, 'and' => 168, 'andc' => 204,
-    'or' => 210, 'orc' => 246, 'xor' => 252, 'shl' => 288, 'shlc' => 324,
-    'cshl' => 330, 'shr' => 336, 'shrc' => 372, 'cshr' => 378, 'sar' => 384,
-    'sarc' => 420, 'csar' => 426, 'mov' => 432, 'movp' => 468, 'movc' => 504,
-    'null' => 510, 'getl' => 516, 'getlp' => 522, 'setl' => 528, 'setlp' => 534,
-    'getm' => 540, 'getmp' => 576, 'setm' => 612, 'setmp' => 648, 'geta' => 684,
-    'getap' => 900, 'seta' => 1116, 'setap' => 1332, 'getb' => 1548,
-    'setb' => 1764, 'jmp' => 1980, 'jmpf' => 1981, 'switch' => 1982,
-    'jcmp' => 1988, 'jcmpc' => 2024, 'jeqp' => 2030, 'jnullp' => 2066,
-    'call' => 2072, 'ret' => 2073, 'newp' => 2074, 'newpa' => 2080,
-    'newa' => 2116, 'in' => 2152, 'out' => 2158, 'err' => 2164
+    'add' => 0,
+    'addc' => 36,
+    'sub' => 42,
+    'csub' => 72,
+    'mul' => 78,
+    'mulc' => 114,
+    'div' => 120,
+    'divc' => 150,
+    'and' => 156,
+    'andc' => 186,
+    'or' => 192,
+    'orc' => 222,
+    'xor' => 228,
+    'shl' => 258,
+    'shlc' => 288,
+    'cshl' => 294,
+    'shr' => 300,
+    'shrc' => 330,
+    'cshr' => 336,
+    'sar' => 342,
+    'sarc' => 372,
+    'csar' => 378,
+    'mov' => 384,
+    'movc' => 414,
+    'getl' => 420,
+    'setl' => 426,
+    'getm' => 432,
+    'setm' => 468,
+    'getb' => 504,
+    'setb' => 684,
+    'jmp' => 864,
+    'jmpf' => 865,
+    'switch' => 866,
+    'jcmp' => 872,
+    'jcmpc' => 902,
+    'jnullp' => 908,
+    'call' => 914,
+    'ret' => 915,
+    'newp' => 916,
+    'newa' => 922,
+    'err' => 928,
+    'in' => 929,
+    'out' => 935
   }
 
 # Yeah this is bad but it is still the nicest way
@@ -134,11 +154,7 @@ def is_int? str
 end
 
 instructions.each {|instruction| instruction.offset = offsets[instruction.opcode]}
-
-# Sort instructions by their numbers
-instructions.sort_by! {|instruction| instruction.offset }
-
-instructions.each_index {|i| instructions[i].conventional_offset = i}
+puts instructions[0].opcode
 
 # Validate instructions
 instructions.each {|instruction|
