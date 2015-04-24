@@ -452,6 +452,6 @@ else
     }
     puts ""
     puts ""
-    IO.write(filename, code.pack('s*'))
+    IO.write(filename, code.pack('s>*'))
   end
 end
