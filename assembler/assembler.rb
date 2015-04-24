@@ -335,10 +335,13 @@ else
                     if save_registers[a] == save_registers[b]
                       raise "Error - #{instruction.opcode} given illegal arguments "
                     end
-                    save_registers[a] *= (5.0/6.0)
+                    save_registers[0, a + 1].each_index{|i|
+                      save_registers[i] *= (5.0/6.0)
+                    }
                     extra = 0
                     if save_registers[b] > save_registers[a]
                       extra = -(6**(save_registers.length - b -1))
+                     # puts "HELLO #{extra}"
                     end
 
                     save_registers.each_index {|index|
