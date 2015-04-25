@@ -268,10 +268,11 @@ else
           error instr, "Constant #{literal} too big for 64 bit" if (~(literal>>64))!=0
         end
         puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"     (dq #{literal})"
-        code << (literal&0xFFFF)
-        code << ((literal>>16)&0xFFFF)
-        code << ((literal>>32)&0xFFFF)
+        #MSB first 
         code << ((literal>>48)&0xFFFF)
+        code << ((literal>>32)&0xFFFF)
+        code << ((literal>>16)&0xFFFF)
+        code << (literal&0xFFFF)
       else
         instruction = $instructions.find {|inst| inst.opcode == parts[0]}
         error instr, "No such instruction '#{parts[0]}'" unless instruction
