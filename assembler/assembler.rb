@@ -269,10 +269,10 @@ else
         end
         puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"     (dq #{literal})"
         #MSB first 
-        code << ((literal>>48)&0xFFFF)
-        code << ((literal>>32)&0xFFFF)
-        code << ((literal>>16)&0xFFFF)
         code << (literal&0xFFFF)
+        code << ((literal>>16)&0xFFFF)
+        code << ((literal>>32)&0xFFFF)
+        code << ((literal>>48)&0xFFFF)
       else
         instruction = $instructions.find {|inst| inst.opcode == parts[0]}
         error instr, "No such instruction '#{parts[0]}'" unless instruction
@@ -373,7 +373,7 @@ else
               operand = last_global_label+operand
             end
             if labels.has_key? operand
-              imm = labels[operand] - instruction_end
+              imm = (labels[operand] - instruction_end)/2
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
             elsif operand == '$'
               error instr, "No next instruction" if next_addr.nil?
@@ -446,6 +446,6 @@ else
     }
     puts ""
     puts ""
-    IO.write(filename, code.pack('s>*'))
+    IO.write(filename, code.pack('s*'))
   end
 end
