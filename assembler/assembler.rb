@@ -301,6 +301,7 @@ else
         reg_count = 0
         save_registers = []
         reg_val = 0
+        immcount = 0
         instruction.operands.each_index do |index|
           last_index = index
           expected_operand = instruction.operands[index]
@@ -368,16 +369,18 @@ else
               error instr, "#{instruction.opcode} expects a register in position #{index+1}"
             end
           elsif (expected_operand == :imm16) || (expected_operand == :immptr64)
+            immcount += 1
             if operand.start_with? '.'
               error instr, "Local #{operand} with no parent" unless last_global_label
               operand = last_global_label+operand
             end
             if labels.has_key? operand
-              imm = (labels[operand] - instruction_end)/2
+              imm = (labels[operand] - instruction_end - 2)/2
+#              puts "#{(instruction_end + imm).to_s(16)}"
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
             elsif operand == '$'
               error instr, "No next instruction" if next_addr.nil?
-              imm = next_addr - instruction_end
+              imm = (next_addr - instruction_end - 2)/2
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" ($)"
             elsif (operand.start_with? '[') && (operand.end_with? ']')
               imm = Integer(operand[1, operand.length-2])
@@ -395,6 +398,7 @@ else
             code << imm
           end
           if instruction.operands[-1] == :arbimm16
+            immcount += 1
             for index in (last_index+1)...parts.length
               operand = parts[index+1]
               if labels.has_key? operand

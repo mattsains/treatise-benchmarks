@@ -143,9 +143,9 @@ offsets =
     'ret' => 921,
     'newp' => 922,
     'newa' => 928,
-    'err' => 934,
-    'in' => 935,
-    'out' => 941
+    'err' => 958,
+    'in' => 959,
+    'out' => 965
   }
 
 # Yeah this is bad but it is still the nicest way
