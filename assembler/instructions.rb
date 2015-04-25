@@ -26,7 +26,7 @@ instructions +=
 
 #instructions with just one operand (register)
 instructions +=
-  ['in', 'out']
+  ['in', 'out', 'null']
   .collect {|opcode| Inst.new opcode, [:reg]}
 
 #instructions with just one operand (immediate)
@@ -126,25 +126,26 @@ offsets =
     'csar' => 378,
     'mov' => 384,
     'movc' => 414,
-    'getl' => 420,
-    'setl' => 426,
-    'getm' => 432,
-    'setm' => 468,
-    'getb' => 504,
-    'setb' => 684,
-    'jmp' => 864,
-    'jmpf' => 865,
-    'switch' => 866,
-    'jcmp' => 872,
-    'jcmpc' => 902,
-    'jnullp' => 908,
-    'call' => 914,
-    'ret' => 915,
-    'newp' => 916,
-    'newa' => 922,
-    'err' => 928,
-    'in' => 929,
-    'out' => 935
+    'null' => 420,
+    'getl' => 426,
+    'setl' => 432,
+    'getm' => 438,
+    'setm' => 474,
+    'getb' => 510,
+    'setb' => 690,
+    'jmp' => 870,
+    'jmpf' => 871,
+    'switch' => 872,
+    'jcmp' => 878,
+    'jcmpc' => 908,
+    'jnullp' => 914,
+    'call' => 920,
+    'ret' => 921,
+    'newp' => 922,
+    'newa' => 928,
+    'err' => 934,
+    'in' => 935,
+    'out' => 941
   }
 
 # Yeah this is bad but it is still the nicest way
