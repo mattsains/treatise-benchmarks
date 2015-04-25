@@ -72,14 +72,15 @@ else
       else
         if line.start_with? 'object' or line.start_with? 'function' or busy_object
           parts = line.split(' ')
+          #reached the end of vars must now process busy_object
           if busy_object and parts[0] != 'ptr' and parts[0] != 'int'
-            #align objects defs to 16 bytes
+            #align object defs to 16 bytes
             for i in (cur_byte)...(cur_byte/16.0).ceil*16
               if i % 2 == 0
-                program[i] = 'dw 0'
+                program[i] = 'dw 0'                             
               end
             end
-            cur_byte = (cur_byte/16.0).ceil*16
+            cur_byte = (cur_byte/16.0).ceil*16                  
             labels[busy_object[:name]] = cur_byte
             last_global_label = busy_object[:name]
             
@@ -101,23 +102,27 @@ else
               bitmap_has_content = true
             }
             
-            if bitmap_has_content
-              program[cur_byte] = "dq #{bitmap}"
-              cur_byte += 8
-            end
+           # if bitmap_has_content
+           #   program[cur_byte] = "dq #{bitmap}"
+           #   cur_byte += 8
+           # end
             
             busy_object = nil
             busy_object_keys = []
           end
           if (parts[0] == 'object' or parts[0] == 'function') and not busy_object
+            #create hash with :name keyword mapped to name of fn or object
             busy_object = {:name => parts[1]}
             puts ""
             puts "#{parts[0]} #{parts[1]}"
+            #create empty array for variable names in order
             busy_object_keys = []
             next
           elsif parts[0] == 'ptr' or parts[0] == 'int' and busy_object
-            busy_object[parts[1]] = parts[0]
+            #add names of vars to hash with mapping from name to type
+            busy_object[parts[1]] = parts[0] 
             puts "  #{parts[1]}: #{parts[0]}"
+            #store var names in order to index
             busy_object_keys << parts[1]
             next
           end
@@ -333,7 +338,7 @@ else
                     a = instruction.disallow_trivial_between[0]
                     b = instruction.disallow_trivial_between[1]
                     if save_registers[a] == save_registers[b]
-                      raise "Error - #{instruction.opcode} given illegal arguments "
+                      error inst, "Error - #{instruction.opcode} given illegal arguments "
                     end
                     save_registers[0, a + 1].each_index{|i|
                       save_registers[i] *= (5.0/6.0)
@@ -341,7 +346,6 @@ else
                     extra = 0
                     if save_registers[b] > save_registers[a]
                       extra = -(6**(save_registers.length - b -1))
-                     # puts "HELLO #{extra}"
                     end
 
                     save_registers.each_index {|index|

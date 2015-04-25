@@ -11,10 +11,10 @@ function reverse
     jmp .floop
   .fend:
   addc r1, -1 ;r1 length -1 of string
-  movp r4, r0
+  mov r4, r0
   mov r3, r1
   divc r1, 2
-  movp r0, r4
+  mov r0, r4
   
   movc r2, 0
   .loop:

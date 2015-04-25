@@ -56,7 +56,7 @@ object LinkedList
 ; Here's an example of using an object
 
 newp r1, LinkedList ;using label defined at start of object prototype
-setm r1, LinkedList.Count, r0
+setm r1, r0, LinkedList.Count
 
 ; You can also define functions
 ; Functions start with a sort of object definition for the parameters.
@@ -64,13 +64,15 @@ setm r1, LinkedList.Count, r0
 function Print
     int param1
     ptr param2
-    ptr string
-    int length
+    ptr string1
+    int length1
+    int param11
+    ptr param21
+    ptr string11
     ; (code)
 ret
 
-;You can include files:
-%include file.asm
+;You can include files: %include file.asm               
 
 ;TODO
 ; Make ri/pi different registers and do type checking on it.
