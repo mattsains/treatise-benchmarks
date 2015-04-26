@@ -375,12 +375,12 @@ else
               operand = last_global_label+operand
             end
             if labels.has_key? operand
-              imm = (labels[operand] - instruction_end - 2)/2
+              imm = ((labels[operand]) - instruction_end)/2 + 1
 #              puts "#{(instruction_end + imm).to_s(16)}"
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" (lbl: #{parts[index+1]})"
             elsif operand == '$'
               error instr, "No next instruction" if next_addr.nil?
-              imm = (next_addr - instruction_end - 2)/2
+              imm = ((next_addr) - instruction_end)/2 + 1
               puts "#{(code.length*2).to_s(16)}: ".rjust(4)+(hex imm)+" ($)"
             elsif (operand.start_with? '[') && (operand.end_with? ']')
               imm = Integer(operand[1, operand.length-2])

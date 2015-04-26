@@ -47,7 +47,7 @@ mov r0, r1
 ;r0: i
 ;r1: undefined
 ;r2: index into output
-;r3: 10^19
+;r3: 10^18
 ;r4: undefined
 ;r5: output
 mov r4, r0
