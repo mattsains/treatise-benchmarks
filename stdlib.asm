@@ -63,6 +63,7 @@ mov r4, r0
     ;this means the number is zero
     movc r4, 48
     setb r5, r2, r4
+    addc r2, 1
     jmp .end
 
 .endpre:
