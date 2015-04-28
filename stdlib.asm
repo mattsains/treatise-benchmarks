@@ -20,7 +20,7 @@ function i_to_s
   int ten
   int pow
 
-movc r1, 20 ;max digits in int64_t + 2 (negatives+\0) /8
+movc r1, 21 ;max digits in int64_t + 2 (negatives+\0) /8
 newa r0, r1 ;r0: output
 
 getl r1, i_to_s.i ;r1: i
