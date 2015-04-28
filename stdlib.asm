@@ -20,7 +20,7 @@ function i_to_s
   int ten
   int pow
 
-movc r1, 3 ;max digits in int64_t + 2 (negatives+\0) /8
+movc r1, 21 ;max digits in int64_t + 2 (negatives+\0)
 newa r0, r1 ;r0: output
 
 getl r1, i_to_s.i ;r1: i
@@ -113,15 +113,12 @@ movc r2, 0 ;r2: index
     jmp .cloop2
 .cloop2e:
 addc r0, 1 ;add \0
-mov r3, r0
-addc r3, 7
-shrc r3, 3 ;r=(r0+7)/64
-newa r4, r3
+newa r4, r0
 ;recap:
 ;r0: length of new array
 ;r1: b
 ;r2: length of b
-;r3: size of output
+;r3: nothing
 ;r4: output
 ;r5: length of a
 ;rearrange for ease of use
