@@ -8,7 +8,7 @@ function mersenne
 
   movc r1, 5489 ;put seed here
   movc r2, 624
-  newa r0, r2
+  newa r0, r2 ;r0 points to MT[624]
   setlp .state, r0
   movc r2, 0
   setl .index_or_seed, r1
@@ -63,8 +63,7 @@ ret
 function generate_numbers
   ptr state
 
-  getlp r0, .state
-  
+  getlp r0, .state  
   movc r1, 0 ;for i=0 ...
   .loop:
   geta r2, r0, r1 ;r2=state[i]
