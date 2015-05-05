@@ -16,14 +16,14 @@ function fannkuch
   int max
   ;r1, r2 - indexes of elements to be swapped
   ;r4 - count
-  ;p3 - current input  
+  ;p3 - current input from file
   movc r3, 0
-  setl r3, fannkuch.max ;let max be 0
+  setl fannkuch.max, r3 ;let max be 0
   jmp notbigger
 inputloop:
   getl r3, fannkuch.max 
   jcmp r3, r4, $, notbigger, notbigger ;if count > max
-  setl r4, fannkuch.max ;then new max found
+  setl fannkuch.max, r4 ;then new max found
 notbigger:
   movc r5, 8
   newa p3, r5
@@ -39,8 +39,8 @@ flip:
   jcmp r1, r2, inccount, inccount, $
   getb r0, p3, r2
   getb r5, p3, r1
-  setb p3 , r1, r5
-  setb p3 , r2, r0
+  setb p3, r1, r5
+  setb p3, r2, r0
   addc r1, 1
   addc r2, -1 
   jmp flip 
