@@ -1,6 +1,7 @@
 ; int pow(int x, int y)
-; ============
+; =====================
 ; Calculates x^y, y>=0
+; result in r0, r5 preserved
   
 function pow
   int x
@@ -18,8 +19,9 @@ getl r2, pow.y ;r2: y
 ret
 
 ; buffer i_to_s(int i)
-; ================
+; ====================
 ; Returns i represented as a string in a byte buffer
+; result in r0, r5 cloberred
   
 function i_to_s
   int i
@@ -98,7 +100,8 @@ ret
 ; int s_to_i(buffer s)
 ; ====================
 ; Returns s parsed as an int
-
+; result in r0, r5 cloberred
+  
 function s_to_i
   ptr s
   int minus
@@ -171,6 +174,7 @@ function s_to_i
   addc r4, -1
   addc r3, 1
   getb r2, p1, r5
+  addc r2, -48 ;ascii offset
   addc r5, -1
   ;calculation r2*(10^r3)
   setl s_to_i.exp, r3
@@ -189,9 +193,10 @@ function s_to_i
 ret  
 
 ; buffer strconcat(buffer a, buffer b)
-; ====================
+; ====================================
 ; Returns concatenation of b onto the end of a
-
+; result in r0, r5 clobbered
+  
 function strconcat
   ptr a
   ptr b
