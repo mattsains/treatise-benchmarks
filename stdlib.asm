@@ -102,8 +102,8 @@ ret
 function s_to_i
   ptr s
   int minus
-  int exp
   int ten
+  int exp
   int acc
   ; legal numbers must match the form:
   ; [ws][sign][digits][ws]
@@ -174,7 +174,7 @@ function s_to_i
   addc r5, -1
   ;calculation r2*(10^r3)
   setl s_to_i.exp, r3
-  call pow, s_to_i.exp, 2
+  call pow, s_to_i.ten, 2
   mul r2, r0  
   ;accumulate
   getl r0, s_to_i.acc
