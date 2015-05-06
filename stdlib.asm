@@ -21,7 +21,7 @@ ret
 ; buffer i_to_s(int i)
 ; ====================
 ; Returns i represented as a string in a byte buffer
-; result in r0, r5 cloberred
+; result in r0, r5 clobbered
   
 function i_to_s
   int i
@@ -100,7 +100,7 @@ ret
 ; int s_to_i(buffer s)
 ; ====================
 ; Returns s parsed as an int
-; result in r0, r5 cloberred
+; result in r0, r5 clobbered
   
 function s_to_i
   ptr s
