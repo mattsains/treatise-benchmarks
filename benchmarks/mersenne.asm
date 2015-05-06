@@ -9,7 +9,7 @@ function mersenne
   movc r1, 5489 ;put seed here
   movc r2, 624
   newa r0, r2                 ;r0 points to MT[624]
-  setlp .state, r0            ;.state points to MT[624]
+  setl .state, r0            ;.state points to MT[624]
   movc r2, 0                  ;r2 is now 0
   setl .index_or_seed, r1     ;.index_or_seed is 5489
   call initialize, .state, 2  ; initialize(MT[624], 5489) -> off we go to line 37ish
@@ -38,7 +38,7 @@ function initialize
   ptr state
   int seed
 
-  getlp r0, .state  
+  getl r0, .state  
   getl r1, .seed
   
   movc r2, 0            ;index=0
