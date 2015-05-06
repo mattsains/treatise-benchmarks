@@ -8,16 +8,16 @@ function mersenne
 
   movc r1, 5489 ;put seed here
   movc r2, 624
-  newa r0, r2 ;r0 points to MT[624]
-  setlp .state, r0
-  movc r2, 0
-  setl .index_or_seed, r1
-  call initialize, .state, 2
+  newa r0, r2                 ;r0 points to MT[624]
+  setlp .state, r0            ;.state points to MT[624]
+  movc r2, 0                  ;r2 is now 0
+  setl .index_or_seed, r1     ;.index_or_seed is 5489
+  call initialize, .state, 2  ; initialize(MT[624], 5489) -> off we go to line 37ish
 
   ;generate some numbers
-  movc r1, 0
+  movc r1, 0                  
   ;using r1 just for the 0 here:
-  setl .index_or_seed, r1
+  setl .index_or_seed, r1    
   
   .loop:
   ;recap:
@@ -38,21 +38,22 @@ function initialize
   ptr state
   int seed
 
-  getlp r0, .state
+  getlp r0, .state  
   getl r1, .seed
   
-  movc r2, 0 ;index=0
-  seta r0, r2, r1 ;state[0]=seed
+  movc r2, 0            ;index=0
+  seta r0, r2, r1       ;state[0]=seed
 
-  movc r3, 1 ;for i=1 ...
+  movc r3, 1            ;for i=1 ...
   .loop:
-  mov r4, r3
-  addc r4, -1 ;i-1
-  geta r4, r0, r4 ;r4=state[i-1]
+  mov r4, r3            
+  addc r4, -1           ;i is r3, i-1 is r4
+  geta r4, r0, r4       ;r4=state[i-1]
   mov r5, r4
-  shrc r5, 30 ;state[i-1]>>30
-  xor r4, r5 ;state[i-1] ^ (state[i-1]>>30)
-  mulc r4, 1812433253 ;1812433253 * (state[i-1] ^ (state[i-1]>>30))
+  shrc r5, 30           ;r5=state[i-1]>>30
+  xor r4, r5            ;r4=state[i-1] ^ (state[i-1]>>30)
+  add r4, r3            ;r4=state[i-1] ^ (state[i-1]>>30) + i
+  mulc r4, 1812433253   ;1812433253 * (state[i-1] ^ (state[i-1]>>30) + i)
   andc r4, 0xFFFFFFFF ; lowest 32 bits of ^
   seta r0, r3, r4 ;state[i] = ^
 
