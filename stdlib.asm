@@ -168,7 +168,7 @@ function s_to_i
   ;r1 is the string
   ;r5 is num chars past the last digit we are
   sub r0, r5 ;r0 is now the pos of the last digit...
-  movc r5, r0 ;move pos out of r0 for fn call
+  mov r5, r0 ;move pos out of r0 for fn call
   movc r3, -1
 .convertloop:
   addc r4, -1
