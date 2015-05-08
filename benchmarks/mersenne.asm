@@ -52,8 +52,8 @@ function initialize
   mov r5, r4
   shrc r5, 30           ;r5=state[i-1]>>30
   xor r4, r5            ;r4=state[i-1] ^ (state[i-1]>>30)
-  add r4, r3            ;r4=state[i-1] ^ (state[i-1]>>30) + i
-  mulc r4, 1812433253   ;1812433253 * (state[i-1] ^ (state[i-1]>>30) + i)
+  mulc r4, 1812433253   ;1812433253 * (state[i-1] ^ (state[i-1]>>30))
+  add r4, r3            ;r4= ^ + i
   andc r4, 0xFFFFFFFF ; lowest 32 bits of ^
   seta r0, r3, r4 ;state[i] = ^
 
@@ -69,7 +69,7 @@ function generate_numbers
   .loop:
   geta r2, r0, r1 ;r2=state[i]
   andc r2, 0x80000000; state[i] & 0x80000000
-  mov r3, r2 ;r3=i
+  mov r3, r1 ;r3=i
   addc r3, 1 ;r3=i+1
   movp r5, r0 ;preserve r0 for div
   divc r3, 624
@@ -78,6 +78,7 @@ function generate_numbers
   geta r3, r0, r3 ;r3=state[(i+1) mod 624]
   andc r3, 0x7fffffff ;first 31 bits
   add r2, r3 ;r2=(state[i]&(1<<31)) + (state[(i+1) mod 624]&0x7fffffff)
+  mov r4, r2 ;r4 stores what is known as y for the next jcmpc
   shrc r2, 1
   movc r3, 397
   add r3, r1 ;r3=i+397
@@ -87,9 +88,8 @@ function generate_numbers
   movp r0, r5 ;r3=(i+397) mod 624
   geta r3, r0, r3 ;r3=state[(i+397) mod 624]
   xor r2, r3 ;okay just figure it out, the expression is getting complicated
-  mov r3, r2
-  andc r3, 1 ;mod 2
-  jcmpc r3, 0, .even, .even, $
+  andc r4, 1 ;mod 2
+  jcmpc r4, 0, .even, .even, $
   ;if the number is odd, do this xor
   movc r3, 2567483615
   xor r2, r3
@@ -117,22 +117,21 @@ function extract_number
   geta r2, r0, r1
   
   mov r3, r2
-  shrc r3, 29
-  andc r3, 0x5555555555555555
-  xor r2, r3 ;r2 ^= (r2 >> 29) & 0x5555555555555555ULL
+  shrc r3, 11
+  xor r2, r3 ;r2 ^= r2 >> 11
   
   mov r3, r2
-  shlc r3, 17
-  andc r3, 0x71D67FFFEDA60000
-  xor r2, r3 ;r2 ^= (r2 << 17) & 0x71D67FFFEDA60000
+  shlc r3, 11
+  andc r3, 2636928640
+  xor r2, r3 ;r2 ^= (r2 << 11) & 2636928640
 
   mov r3, r2
-  shlc r3, 37
-  andc r3, 0xFFF7EEE000000000
-  xor r2, r3 ;r2 ^= (r2 << 37) & 0xFFF7EEE000000000
+  shlc r3, 15
+  andc r3, 4022730752
+  xor r2, r3 ;r2 ^= (r2 << 15) & 4022730752
 
   mov r3, r2
-  shrc r3, 43
+  shrc r3, 18
   xor r2, r3 ;r2 ^=(r2 >> 43)
 
   addc r1, 1
