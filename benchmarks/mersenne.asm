@@ -7,7 +7,7 @@ function mersenne
   int random_num
 
   movc r1, 5489 ;put seed here
-  movc r2, 624
+  movc r2, 4992 ;624*8
   newa r0, r2                 ;r0 points to MT[624]
   setlp .state, r0            ;.state points to MT[624]
   movc r2, 0                  ;r2 is now 0
