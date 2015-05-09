@@ -186,6 +186,8 @@ else
                 val = labels[operand] - (cur_byte + 2)
               elsif operand == '$'
                 val = 2*(parts.length - instruction.operands.count(:reg) - 1)
+              elsif operand.start_with? "'"
+                (val = operand[/'[^']'/][1, 1].ord) rescue error line, "#{operand} was recognised as a character literal, but failed to parse"
               else
                 error line, "Couldn't make anything from #{operand}"
               end
@@ -205,7 +207,13 @@ else
           if instruction.operands[-1] == :arbimm16
             for index in (last_index+1)...parts.length
               operand = parts[index+1]
-              val = Integer(operand)
+              if is_int? operand
+                val = Integer(operand)
+              elsif operand.start_with? "'"
+                (val = operand[/'[^']'/][1, 1].ord) rescue error line, "#{operand} was recognised as a character literal, but failed to parse"
+              else
+                error line, "Couldn't make anything from #{operand}"
+              end
               if const_labels.has_key? val
                 label = const_labels[val]
               else
