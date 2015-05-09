@@ -132,6 +132,23 @@ else
             labels[label] = cur_byte
             last_global_label = label
           end
+        elsif line.start_with? 'ds'
+          if line =~ /ds\s+(("[^"]*")|('[^"]*'))/
+            parts = line.rpartition(/("[^"]*")|('[^']*')/)
+            if parts[0]==""
+              error line, "Could not find a string accompanying ds"
+            end
+            parts[1] = parts[1][1, parts[1].length-2]
+            parts[1].each_byte {|c|
+              program[cur_byte] = "db #{c}"
+              cur_byte += 1
+            }
+          else
+            error line, "Invalid syntax for ds"
+          end
+        elsif line.start_with? 'db'
+          program[cur_byte] = line
+          cur_byte += 1
         elsif line.start_with? 'dw'
           program[cur_byte] = line
           cur_byte += 2
@@ -257,7 +274,16 @@ else
 
       labels.each {|k,v| last_global_label = k if v==code.length*2 and not k.include? '.'} #don't care which
 
-      if parts[0] == 'dw'
+      if parts[0] == 'db'
+        (literal = Integer(parts[1])) rescue error instr, "Couldn't coerce #{parts[1]} into a number"
+        if literal >= 0
+          error instr, "Constant #{literal} too big for 8 bit int" if (literal>>8)!=0
+        else
+          error instr, "Constant #{literal} too big for 8 bit int" if (~(literal>>16))!=0
+        end
+        puts "#{(code.length*2).to_s(16)}: ".rjust(4)+"     (db #{literal})"
+        code << literal
+      elsif parts[0] == 'dw'
         (literal = Integer(parts[1])) rescue error instr, "Couldn't coerce #{parts[1]} into a number"
         if literal >= 0
           error instr, "Constant #{literal} too big for 16 bit" if (literal>>16)!=0
