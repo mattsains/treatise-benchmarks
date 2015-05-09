@@ -13,10 +13,7 @@ loop:
   mov r3, r1
   add r3, r2
   mov r1, r2
-  mov r2, r3
-  mov r1, r2
-  mov
- 
+  mov r2, r3 
   ;print result
   setl fib.output, r3
   call i_to_s, fib.output, 1
