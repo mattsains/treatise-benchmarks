@@ -45,12 +45,12 @@ int main()
     if (buffer[0]=='>' || buffer[0]=='\n'){
       if (i!=0){
         //reverse and print string
-        for (int j=i; j>=0; j-=60){
+        for (int j=i-1; j>=0; j-=60){
           for (int k=0; k<60; k++)
             if (j-k<0)
               outbuffer[k]='\0';
             else
-              outbuffer[k]=sequence[j-k-1];
+              outbuffer[k]=sequence[j-k];
           outbuffer[60]='\0';
           printf(outbuffer);
           printf("\n");
@@ -67,10 +67,10 @@ int main()
     }
     else {
       int j;
-      for (j=0; buffer[j]; j++){
+      for (j=0; buffer[j]!='\n'; j++){
         sequence[i+j]=pairs[buffer[j]];
       }
-      i+=j-1;
+      i+=j;
     }
   }
   return 0;
