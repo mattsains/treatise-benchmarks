@@ -43,9 +43,10 @@ if argv_without_flags[0] == nil
   puts "   defined by Douglas:"
   puts "    bits  |  meaning"
   puts "   --------------------"
-  puts "    0..3  |  register 2"
-  puts "    4..7  |  register 1"
-  puts "    8..16 |  opcode"
+  puts "    0..2  |  register 3"
+  puts "    3..5  |  register 2"
+  puts "    6..8  |  register 1"
+  puts "    9..16 |  opcode"
 else
   File.open(argv_without_flags[0],"r") do |f|
 
