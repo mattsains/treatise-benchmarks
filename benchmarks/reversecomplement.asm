@@ -120,7 +120,7 @@ function reversecomplement
   movc r5, 0
   getb r0, r2, r5 ;r0=buffer[0]
   jcmpc r0, '>', $, .heading, $
-  jcmpc r0, 0xa, $, .heading, $ ;newline
+  jcmpc r0, 0, $, .heading, $ ;\0
   ;heading goes off somewhere and rejoins at .loop
   setlp .spillbuffer, r3
   getlp r3, .spillpairs
@@ -143,7 +143,6 @@ function reversecomplement
   jmp .seqloop
   .seqend:
   add r1, r0
-  addc r1, -1
   jmp .loop
 
   
@@ -154,6 +153,7 @@ function reversecomplement
   jcmpc r1, 0, $, .afterprint, $
   ;for j=i:
   mov r5, r1 ;j=i
+  addc r5, -1
   .jloop:
   jcmpc r5, 0, .jend, $, $
   ;for k=0
@@ -171,10 +171,9 @@ function reversecomplement
   setb r3, r0, r2 ;outbuffer[k]='\0'
   jmp .jkend
   .jkelse:
-  movc r2, -1
-  add r2, r5
-  sub r2, r0 ;r2 = j-k-1
-  getb r2, r4, r2 ;r2=sequence[j-k-1]
+  mov r2, r5
+  sub r2, r0 ;r2 = j-k
+  getb r2, r4, r2 ;r2=sequence[j-k]
   setb r3, r0, r2 ;outbuffer[k]=^
   .jkend:
   addc r0, 1 ;for(_,_,k++)
