@@ -50,7 +50,7 @@ void makeRandomFasta (struct Frequency frequencies[], int length, int n)
       index++;
     }
 
-    if (1084 - index < m) { //1024+60
+    if (964 <= index) { //1024 <= index + 60
       buffer[index] = '\0';
       printf("%s\n", buffer);
       index = 0;
@@ -91,7 +91,7 @@ void makeRepeatFasta(char alu[], int length, int n)
       k++;
     }
 
-    if (1024 - index + 60 < m) {
+    if (964 <= index) { //1024 <= index + 60
       buffer[index] = '\0';
       printf("%s\n", buffer);
       index = 0;

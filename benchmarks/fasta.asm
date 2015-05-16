@@ -157,6 +157,7 @@ function fasta
   movc r0, 287
   setl .ALU_length, r0
   newa r1, r0
+  setlp .ALU, r1
   movc r2, 0
   movc r3, 'G'
   setb r1, r2, r3
@@ -1222,7 +1223,7 @@ function fasta
   movc r3, 32
   setb r1, r2, r3
   movc r2, 12
-  movc r3, 'S'
+  movc r3, 's'
   setb r1, r2, r3
   movc r2, 13
   movc r3, 'a'
@@ -1314,10 +1315,10 @@ function makeCumulative
 
   .loop:
   jcmp r3, r1, $, .end, .end
-  geta r4, r0, r3
+  getap r4, r0, r3
   getm r4, r4, Frequency.p
   add r2, r4
-  geta r4, r0, r3
+  getap r4, r0, r3
   setm r4, Frequency.p, r2
   addc r3, 1
   jmp .loop
@@ -1341,14 +1342,15 @@ function selectRandom
   .loop:
   jcmp r2, r1, $, .lend, .lend
 
-  geta r4, r0, r2
+  getap r4, r0, r2
   getm r4, r4, Frequency.p
   jcmp r3, r4, $, .continue, .continue
-  geta r4, r0, r2
+  getap r4, r0, r2
   getm r0, r4, Frequency.c
   ret
   .continue:
   addc r2, 1
+  jmp .loop
   .lend:
   addc r1, -1
   geta r0, r0, r1
@@ -1390,21 +1392,18 @@ function makeRandomFasta
   setb r1, r3, r0
   mov r0, r3
   addc r0, 1
-  addc r3, 1
+  addc r4, 1
   jmp .floop
   .fend:
   getl r3, .spill
 
-  csub 1084, r0
-  jcmp r0, r2, $, .if2else, .if2else
-  csub 1084, r0 ;don't ask, the maths just works out
+  jcmpc r0, 964, .if2else, $, $
   movc r4, 0
   setb r1, r0, r4
   out r1
   movc r0, 0
   jmp .if2end
   .if2else:
-  csub 1084, r0
 
   jcmpc r3, 60, .if2end, .if2end, $
   movc r4, 0xa ;\n
@@ -1466,6 +1465,7 @@ function makeRepeatFasta
   addc r0, 1
   addc r3, 1
   addc r4, 1
+  getl r2, .spill_m
   jmp .forloop
   .forend:
   setl .spill_k, r3
@@ -1478,16 +1478,13 @@ function makeRepeatFasta
   ; r3 - n
   ; r4 - spare
 
-  csub 1084, r0
-  jcmp r0, r2, $, .if3else, .if3else
-  csub 1084, r0
+  jcmpc r0, 964, .if3else, $, $
   movc r4, 0
   setb r1, r0, r4
   out r1
   movc r0, 0
   jmp .if3end
   .if3else:
-  csub 1084, r0
 
   jcmpc r3, 60, .if3end, .if3else, $
   movc r4, 0xa ;\n
@@ -1496,6 +1493,7 @@ function makeRepeatFasta
   .if3end:
   
   addc r3, -60
+  setl .n, r3
   jmp .wloop
 
   .wloopend:
