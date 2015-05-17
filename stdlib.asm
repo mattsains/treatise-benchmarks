@@ -29,7 +29,7 @@ function i_to_s
   int pow
 
 movc r1, 21 ;max digits in int64_t + 2 (negatives+\0)
-newa r0, r1 ;r0: output
+newb r0, r1 ;r0: output
 
 getl r1, i_to_s.i ;r1: i
 movc r2, 0 ;r2: index into output
@@ -222,7 +222,7 @@ movc r2, 0 ;r2: index
     jmp .cloop2
 .cloop2e:
 addc r0, 1 ;add \0
-newa r4, r0
+newb r4, r0
 ;recap:
 ;r0: length of new array
 ;r1: b
