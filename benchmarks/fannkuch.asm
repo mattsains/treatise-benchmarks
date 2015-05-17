@@ -26,7 +26,7 @@ inputloop:
   setl fannkuch.max, r4 ;then new max found
 notbigger:
   movc r5, 8
-  newa p3, r5
+  newb p3, r5
   in p3 ;get new input (EOF behaviour?)
   movc r4, 0 ;reset count to 0 for new input
 pancake:
@@ -48,5 +48,71 @@ inccount:
   addc r4, 1
   jmp pancake
 ret
+
+  ; generate permutations based on lexicographic order
+  ; takes a buffer as input and return the next permutation,
+  ; if done returns a buffer with first character: ASCII EOT (0x3)
+function permute
+  ptr buffer
+  int length
+  int start
+
+  getl r0, permute.buffer
+  getl r3, permute.length ;k + 2
+  mov r2, r3
+  mov r1, r2
+  addc r3, -1 
+  addc r1, -1
+  ;r3 = last index
+  ;r1 = last index
+  ;r2 = last index + 1
+
+  .largekloop
+  addc r1, -1 ; k
+  addc r2, -1 ; k + 1
+  jcmpc r1, 0, .doneperms, $, $ ;check if we are done
+  getb r4, p0, r1 ;buffer[k]
+  getb r5, p0, r2 ;buffer[k + 1]
+  jcmp r4, r5, .largelloop, $, $
+  addc r1, 1
+  setl permute.start, r1
+  jmp .largekloop
+  ;permute.start = k + 1
+  ;r4 = buffer[k]
+  ;r3 = last index
+  ;r2 = k + 1
   
+  .largelloop
+  jcmp r2, r3, $, .swaprotate, .error
+  mov r1, r2 ;store current l
+  addc r2, 1
+  getb r5, p0, r2
+  jcmp r5, r4, .largelloop, .largelloop, $
+  mov r1, r2 ;larger index for l found so update
+  jmp .largelloop
+  ;r1 = l
+
+  .swaprotate
+  getl r2, permute.start
+  addc r2, -1 ;k
+  ;swap buffer[k] and buffer[l]
+  getb r4, p0, r2 ;r4 = buffer[k]
+  getb r5, p0, r1 ;r5 = buffer[l]
+  setb p0, r2, r5 ;buffer[k] = r5
+  setb p0, r1, r4 ;buffer[l] = r4
+  setl permute.buffer, r0
+  setl permute.length, r3
+  call rotate, permute.buffer, 3  
+ret
+
+function rotate
+  ptr buffer
+  int lastindex
+  int start
+
+
+ret
+  
+
+
 
