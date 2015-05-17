@@ -1,55 +1,65 @@
-;Finds prime numbers using the Sieve of Eratosthenes
+  ;Finds prime numbers using the Sieve of Eratosthenes
 function primesieve
   int n
   ptr list
   int x
-movc r1, 1000000 ;find primes up to this number
-; for 1 000 000, should take around three minutes
-setl .n, r1
+  movc r1, 1000000 ;find primes up to this number
+  ; for 1 000 000, should take around three minutes
+  setl .n, r1
 
-newp r0, LinkedList ;r0: linked list
-movp r4, r0 ;save linked list so we can rewind
+  movc r5, 2
+  newo r0, r3 ;r0: linked list
+  mov r4, r0 ;save linked list so we can rewind
 
-;Fill linked list with n elements
-movc r2, 2
-.cloop:
-  setmp r0, LinkedList.value, r2
-  newp r3, LinkedList
-  setmp r0, LinkedList.next, r3
-  movp r0, r3
+  ;Fill linked list with n elements
+  movc r2, 2
+  .cloop:
+  movc r5, 0 ;value
+  seto r0, r5, r2
+  movc r5, 2 ;2 items
+  newo r3, r5
+  movc r5, 1 ;next
+  seto r0, r5, r3
+  mov r0, r3
   addc r2, 1
   jcmp r2, r1, .cloop, .cloop, .cend
-.cend:
-null r2
-setmp r0, LinkedList.next, r2
-movp r0, r4 ;rewind linked list
+  .cend:
+  null r2
+  movc r5, 1 ;next
+  seto r0, r5, r2
+  mov r0, r4 ;rewind linked list
 
-.loop:
+  .loop:
   jnullp r0, $, .end
-  getm r1, r0, LinkedList.value
-  getmp r0, r0, LinkedList.next
+  movc r5, 0 ;value
+  geto r1, r0, r5
+  movc r5, 1 ;next
+  geto r0, r0, r5
   jnullp r0, $, .end
   setl primesieve.list, r0
   setl primesieve.x, r1
   call removeMultiples, primesieve.list, 2
   jmp .loop
-.end:
-mov r1, r4 ;rewind list again
+  
+  .end:
+  mov r1, r4 ;rewind list again
 
-.ploop:
+  .ploop:
   jnullp r1, $, .pend
-  getm r0, r1, LinkedList.value
+  movc r5, 0 ; value
+  geto r0, r1, r5
   setl primesieve.x, r0
   call i_to_s, primesieve.x, 1
   out r0
-  getmp r1, r1, LinkedList.next
+  movc r5, 1; next
+  geto r1, r1, r5
   jmp .ploop
-.pend:
+  .pend:
 ret
 
-object LinkedList
-  int value
-  ptr next
+  ;object LinkedList (length: 2)
+  ; 0 int value
+  ; 1 ptr next
 
 function removeMultiples
   ptr list
@@ -61,21 +71,25 @@ function removeMultiples
   getl r2, .n
   mov r3, r2
   .loop:
-    jnullp r1, $, .end
-    getmp r3, r1, LinkedList.next
-    jnullp r3, $, .end
-    getm r3, r3, LinkedList.value
-    div r3, r2
-    jcmpc r0, 0, .remove, .remove, .continue
-    .remove:
-    getmp r3, r1, LinkedList.next
-    getmp r3, r3, LinkedList.next
-    setmp r1, LinkedList.next, r3
-    .continue:
-    getmp r1, r1, LinkedList.next
-    jmp .loop    
+  jnullp r1, $, .end
+  movc r5, 1 ; next
+  geto r3, r1, r5
+  jnullp r3, $, .end
+  movc r5, 0 ; value
+  geto r3, r3, r5
+  div r3, r2
+  jcmpc r0, 0, .remove, .remove, .continue
+  .remove:
+  movc r5, 1 ; next
+  geto r3, r1, r5
+  geto r3, r3, r5
+  seto r1, r5, r3
+  .continue:
+  movc r5, 1 ; next
+  geto r1, r1, r5
+  jmp .loop    
   .end:
-  getlp r0, .list
-  ret
+  getl r0, .list
+ret
 
 %include ../stdlib.asm

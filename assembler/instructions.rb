@@ -45,7 +45,7 @@ instructions +=
 
 #instructions with two registers where the trivial case is disallowed
 instructions +=
-  ['sub','div','and','or','xor','shl','shr','sar','mov','newa']
+  ['sub','div','and','or','xor','shl','shr','sar','mov','newb','newo']
   .collect {|opcode| Inst.new opcode, [:reg, :reg], [0,1]}
 
 #instructions with one register and one 16b immediate
@@ -54,7 +54,7 @@ instructions +=
   .collect {|opcode| Inst.new opcode, [:reg, :immptr64]}
 
 instructions +=
-  ['shlc','shrc','sarc','getl','newp']
+  ['shlc','shrc','sarc','getl']
   .collect {|opcode| Inst.new opcode, [:reg, :imm16]}
 
 #instructions with one ptr and one register
@@ -67,16 +67,13 @@ instructions +=
   .collect {|opcode| Inst.new opcode, [:imm16, :reg]}
 
 #Three-operand instructions
-instructions +=
-  ['getm','setm']
-  .collect {|opcode| Inst.new opcode, [:reg, :reg, :imm16]}
 
 instructions +=
-  ['getb']
+  ['getb', 'geto']
   .collect {|opcode| Inst.new opcode, [:reg, :reg, :reg], [1,2]}
 
 instructions +=
-  ['setb']
+  ['setb', 'seto']
   .collect {|opcode| Inst.new opcode, [:reg, :reg, :reg], [0,1]}
 
 #strange instructions
@@ -129,23 +126,23 @@ offsets =
     'null' => 420,
     'getl' => 426,
     'setl' => 432,
-    'getm' => 438,
-    'setm' => 474,
-    'getb' => 510,
-    'setb' => 690,
-    'jmp' => 870,
-    'jmpf' => 871,
-    'switch' => 872,
-    'jcmp' => 878,
-    'jcmpc' => 908,
-    'jnullp' => 914,
-    'call' => 920,
-    'ret' => 921,
-    'newp' => 922,
-    'newa' => 928,
-    'err' => 958,
-    'in' => 959,
-    'out' => 965
+    'geto' => 438,
+    'seto' => 618,
+    'getb' => 798,
+    'setb' => 978,
+    'jmp' => 1158,
+    'jmpf' => 1159,
+    'switch' => 1160,
+    'jcmp' => 1166,
+    'jcmpc' => 1196,
+    'jnullp' => 1202,
+    'call' => 1208,
+    'ret' => 1209,
+    'newo' => 1210,
+    'newb' => 1240,
+    'err' => 1270,
+    'in' => 1271,
+    'out' => 1277
   }
 
 # Yeah this is bad but it is still the nicest way
