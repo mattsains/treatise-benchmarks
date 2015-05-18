@@ -64,7 +64,7 @@ inputloop:
   setl fannkuch.max, r4 ;then new max found
 notbigger:
   call permute, fannkuch.buffer, 2
-  out p0 
+  ;out p0 
   setl fannkuch.buffer, r0
   call bufferclone, fannkuch.buffer, 2
   movc r4, 0 ;reset count to 0 for new input
