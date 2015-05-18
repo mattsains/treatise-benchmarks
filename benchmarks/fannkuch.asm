@@ -12,23 +12,59 @@
 ;     max = count
 ; print max
 
+%include ../stdlib.asm
+  
 function fannkuch
   int max
+  ptr buffer
+  int length
   ;r1, r2 - indexes of elements to be swapped
   ;r4 - count
-  ;p3 - current input from file
+  ;p0 - buffer
+  ;set up buffer:
+  movc r5, 7
+  newb p0, r5
+  
+  movc r5, '1'
+  movc r4, 0
+  setb p0, r4, r5
+  movc r5, '2'
+  movc r4, 1
+  setb p0, r4, r5
+  movc r5, '3'
+  movc r4, 2
+  setb p0, r4, r5
+  movc r5, '4'
+  movc r4, 3
+  setb p0, r4, r5
+  movc r5, '5'
+  movc r4, 4
+  setb p0, r4, r5
+  movc r5, '6'
+  movc r4, 5
+  setb p0, r4, r5
+  movc r5, '7'
+  movc r4, 6
+  setb p0, r4, r5  
+  
   movc r3, 0
   setl fannkuch.max, r3 ;let max be 0
-  jmp notbigger
+
+  movc r3, 8
+  setl fannkuch.length, r3
+  movc r4, 0
+  
+  jmp pancake
 inputloop:
   getl r3, fannkuch.max 
   jcmp r3, r4, $, notbigger, notbigger ;if count > max
   setl fannkuch.max, r4 ;then new max found
 notbigger:
-  movc r5, 8
-  newb p3, r5
-  in p3 ;get new input (EOF behaviour?)
+  call permute, fannkuch.buffer, 2
   movc r4, 0 ;reset count to 0 for new input
+  getb r3, p0, r4
+  jcmpc r3, 3, $, done, $ ;lt should never happen
+
 pancake:
   getb r2, p3, r1
   addc r2, -48 ;ascii -> int
@@ -37,20 +73,23 @@ pancake:
   movc r1, 0; make r1 point to start
 flip:
   jcmp r1, r2, inccount, inccount, $
-  getb r0, p3, r2
-  getb r5, p3, r1
-  setb p3, r1, r5
-  setb p3, r2, r0
+  getb r3, p0, r2
+  getb r5, p0, r1
+  setb p0, r1, r5
+  setb p0, r2, r3
   addc r1, 1
   addc r2, -1 
   jmp flip 
 inccount:
   addc r4, 1
   jmp pancake
+done:
+  call i_to_s, fannkuch.max, 1
+  out p0
 ret
 
   ; generate permutations based on lexicographic order
-  ; takes a buffer as input and return the next permutation,
+  ; takes a buffer as input and returns the next permutation,
   ; if done returns a buffer with first character: ASCII EOT (0x3)
 function permute
   ptr buffer
@@ -67,7 +106,7 @@ function permute
   ;r1 = last index
   ;r2 = last index + 1
 
-  .largekloop
+  .largekloop:
   addc r1, -1 ; k
   addc r2, -1 ; k + 1
   jcmpc r1, 0, .doneperms, $, $ ;check if we are done
@@ -82,8 +121,8 @@ function permute
   ;r3 = last index
   ;r2 = k + 1
   
-  .largelloop
-  jcmp r2, r3, $, .swaprotate, .error
+  .largelloop:
+  jcmp r2, r3, $, .swaprotate, $ ;gt should never happen
   mov r1, r2 ;store current l
   addc r2, 1
   getb r5, p0, r2
@@ -92,7 +131,7 @@ function permute
   jmp .largelloop
   ;r1 = l
 
-  .swaprotate
+  .swaprotate:
   getl r2, permute.start
   addc r2, -1 ;k
   ;swap buffer[k] and buffer[l]
@@ -102,15 +141,34 @@ function permute
   setb p0, r1, r4 ;buffer[l] = r4
   setl permute.buffer, r0
   setl permute.length, r3
-  call rotate, permute.buffer, 3  
+  call rotate, permute.buffer, 3
+
+  .doneperms:
+  movc r2, 3
+  movc r1, 0
+  setb p0, r1, r2 ;buffer[0] = 0x3 (EOT)
 ret
 
 function rotate
   ptr buffer
   int lastindex
   int start
-
-
+  getl r0, rotate.buffer
+  getl r2, rotate.lastindex ;end
+  mov r2, r3
+  addc r3, 1 ;length
+  getl r1, rotate.start ;start
+  divc r3, 2 ;length/2
+  .rotloop:
+  addc r3, -1
+  getb r4, p0, r2
+  getb r5, p0, r1
+  ;swap
+  setb p0, r4, r1
+  setb p0, r5, r2
+  addc r2, -1
+  addc r1, 1
+  jcmpc r3, 0, $, $, .rotloop
 ret
   
 
