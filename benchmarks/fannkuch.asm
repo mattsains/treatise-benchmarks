@@ -12,8 +12,6 @@
 ;     max = count
 ; print max
 
-%include ../stdlib.asm
-  
 function fannkuch
   int max
   ptr buffer
@@ -50,7 +48,7 @@ function fannkuch
   movc r3, 0
   setl fannkuch.max, r3 ;let max be 0
 
-  movc r3, 8
+  movc r3, 7
   setl fannkuch.length, r3
   movc r4, 0
   
@@ -60,13 +58,14 @@ inputloop:
   jcmp r3, r4, $, notbigger, notbigger ;if count > max
   setl fannkuch.max, r4 ;then new max found
 notbigger:
+  setl fannkuch.buffer, r0
   call permute, fannkuch.buffer, 2
   movc r4, 0 ;reset count to 0 for new input
   getb r3, p0, r4
   jcmpc r3, 3, $, done, $ ;lt should never happen
 
 pancake:
-  getb r2, p3, r1
+  getb r2, p0, r1
   addc r2, -48 ;ascii -> int
   jcmpc r2, 1, $, inputloop, $; if we read 1 then we are done (don't inc count)
   addc r2, -1; make r2 an index
@@ -83,6 +82,7 @@ flip:
 inccount:
   addc r4, 1
   jmp pancake
+
 done:
   call i_to_s, fannkuch.max, 1
   out p0
@@ -109,12 +109,11 @@ function permute
   .largekloop:
   addc r1, -1 ; k
   addc r2, -1 ; k + 1
+  setl permute.start, r2
   jcmpc r1, 0, .doneperms, $, $ ;check if we are done
   getb r4, p0, r1 ;buffer[k]
   getb r5, p0, r2 ;buffer[k + 1]
   jcmp r4, r5, .largelloop, $, $
-  addc r1, 1
-  setl permute.start, r1
   jmp .largekloop
   ;permute.start = k + 1
   ;r4 = buffer[k]
@@ -122,14 +121,18 @@ function permute
   ;r2 = k + 1
   
   .largelloop:
-  jcmp r2, r3, $, .swaprotate, $ ;gt should never happen
   mov r1, r2 ;store current l
+  .largelloop2:
+  jcmp r2, r3, $, .swaprotate, $ ;gt should never happen
   addc r2, 1
   getb r5, p0, r2
-  jcmp r5, r4, .largelloop, .largelloop, $
-  mov r1, r2 ;larger index for l found so update
-  jmp .largelloop
+  jcmp r5, r4, .largelloop2, .largelloop2, .largelloop
   ;r1 = l
+
+  .doneperms:
+  movc r2, 3
+  movc r1, 0
+  setb p0, r1, r2 ;buffer[0] = 0x3 (EOT)
 
   .swaprotate:
   getl r2, permute.start
@@ -142,11 +145,6 @@ function permute
   setl permute.buffer, r0
   setl permute.length, r3
   call rotate, permute.buffer, 3
-
-  .doneperms:
-  movc r2, 3
-  movc r1, 0
-  setb p0, r1, r2 ;buffer[0] = 0x3 (EOT)
 ret
 
 function rotate
@@ -155,22 +153,26 @@ function rotate
   int start
   getl r0, rotate.buffer
   getl r2, rotate.lastindex ;end
-  mov r2, r3
-  addc r3, 1 ;length
+  mov r3, r2
+  addc r3, 1 ;end + 1
   getl r1, rotate.start ;start
+  sub r3, r1
+  mov r5, r0 ;get out of way of remainder :'(
   divc r3, 2 ;length/2
+  mov r0, r5
   .rotloop:
   addc r3, -1
   getb r4, p0, r2
   getb r5, p0, r1
   ;swap
-  setb p0, r4, r1
-  setb p0, r5, r2
+  setb p0, r1, r4
+  setb p0, r2, r5
   addc r2, -1
   addc r1, 1
   jcmpc r3, 0, $, $, .rotloop
 ret
-  
 
+%include ../stdlib.asm
+  
 
 
