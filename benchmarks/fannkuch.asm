@@ -43,7 +43,7 @@ function fannkuch
   setb p0, r4, r5
   movc r5, '7'
   movc r4, 6
-  setb p0, r4, r5  
+  setb p0, r4, r5
   
   movc r3, 0
   setl fannkuch.max, r3 ;let max be 0
@@ -51,6 +51,11 @@ function fannkuch
   movc r3, 7
   setl fannkuch.length, r3
   movc r4, 0
+
+  ;save buffer
+  setl fannkuch.buffer, r0
+  ;copy it and mess with the copy only
+  call bufferclone, fannkuch.buffer, 2
   
   jmp pancake
 inputloop:
@@ -58,24 +63,26 @@ inputloop:
   jcmp r3, r4, $, notbigger, notbigger ;if count > max
   setl fannkuch.max, r4 ;then new max found
 notbigger:
-  setl fannkuch.buffer, r0
   call permute, fannkuch.buffer, 2
+  out p0 
+  setl fannkuch.buffer, r0
+  call bufferclone, fannkuch.buffer, 2
   movc r4, 0 ;reset count to 0 for new input
   getb r3, p0, r4
   jcmpc r3, 3, $, done, $ ;lt should never happen
 
 pancake:
-  getb r2, p0, r1
-  addc r2, -48 ;ascii -> int
-  jcmpc r2, 1, $, inputloop, $; if we read 1 then we are done (don't inc count)
-  addc r2, -1; make r2 an index
-  movc r1, 0; make r1 point to start
+  movc r3, 0
+  getb r2, p0, r3
+  addc r2, -49 ;ascii -> int - 1(convert to int-1 for an index)
+  jcmpc r2, 0, $, inputloop, $; if we read 1 then we are done (don't inc count)
+  movc r1, 0
 flip:
-  jcmp r1, r2, inccount, inccount, $
+  jcmp r1, r2, $, inccount, inccount
   getb r3, p0, r2
   getb r5, p0, r1
-  setb p0, r1, r5
-  setb p0, r2, r3
+  setb p0, r2, r5
+  setb p0, r1, r3
   addc r1, 1
   addc r2, -1 
   jmp flip 
@@ -109,7 +116,7 @@ function permute
   .largekloop:
   addc r1, -1 ; k
   addc r2, -1 ; k + 1
-  setl permute.start, r2
+  setl permute.start, r2 ;can i make this only happen once?
   jcmpc r1, 0, .doneperms, $, $ ;check if we are done
   getb r4, p0, r1 ;buffer[k]
   getb r5, p0, r2 ;buffer[k + 1]
@@ -133,6 +140,7 @@ function permute
   movc r2, 3
   movc r1, 0
   setb p0, r1, r2 ;buffer[0] = 0x3 (EOT)
+  jmp .end
 
   .swaprotate:
   getl r2, permute.start
@@ -145,6 +153,7 @@ function permute
   setl permute.buffer, r0
   setl permute.length, r3
   call rotate, permute.buffer, 3
+  .end:
 ret
 
 function rotate

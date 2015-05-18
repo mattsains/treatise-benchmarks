@@ -259,3 +259,25 @@ movc r4, 0
 movc r5, 0
 setb r0, r1, r5
 ret
+
+; buffer bufferclone(buffer a, int length)
+; ====================================
+; Returns a new buffer with a copy of the contents of a
+; result in r0, r5 preserved
+function bufferclone
+  ptr a
+  int length
+
+  getl r4, bufferclone.a
+  getl r1, bufferclone.length
+  newb p0, r1
+  .loop:
+  addc r1, -1
+  jcmpc r1, 0, .end, $, $
+  getb r2, p4, r1
+  setb p0, r1, r2
+  jmp .loop
+
+  .end:
+ret  
+  
