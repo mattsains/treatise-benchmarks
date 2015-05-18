@@ -120,8 +120,7 @@ function permute
   jcmpc r1, 0, .doneperms, $, $ ;check if we are done
   getb r4, p0, r1 ;buffer[k]
   getb r5, p0, r2 ;buffer[k + 1]
-  jcmp r4, r5, .largelloop, $, $
-  jmp .largekloop
+  jcmp r4, r5, .largelloop, .largekloop, .largekloop
   ;permute.start = k + 1
   ;r4 = buffer[k]
   ;r3 = last index
