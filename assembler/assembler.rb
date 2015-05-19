@@ -165,7 +165,7 @@ else
           cur_byte = (cur_byte/8.0).ceil * 8
         else
           parts=[]
-          line.split.each {|s| parts+=s.split(',')}
+          line.split.each {|s| parts+=s.split(',').split('[').split(']')}
           puts " #{parts[0]} "+parts[1, parts.length-1].join(', ')
           instruction = $instructions.find {|inst| inst.opcode == parts[0]}
           if instruction == nil
