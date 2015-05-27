@@ -1,14 +1,20 @@
-function start
+function ackermann
     int m
     int n
+    int output
 ;hardcoded inputs
-movc r0, 3 ;m
-movc r1, 2 ;n
-setl start.m, r0
-setl start.n, r1
+movc r0, 4 ;m
+movc r1, 1 ;n
+setl .m, r0
+setl .n, r1
 call A, 0, 2
 ;r0 now has the result of the ackermann function
-ret ;not sure how to print numbers
+;should be 65533 for (4,1)
+; takes about 3 minutes
+setl .output, r0
+call i_to_s, .output, 1
+out r0
+ret
 
 function A
     int m
@@ -41,3 +47,5 @@ function A
     setl A.m, r1
     call A, A.m, 2
 ret
+
+%include ../stdlib.asm
