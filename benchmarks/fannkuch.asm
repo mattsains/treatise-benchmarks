@@ -1,5 +1,5 @@
-;This is purely the flipping algorithm and does not generate permutations
-;
+;NB checksum is wrong because I didn't use their weird permutaiton order
+;Code still does the same thing though so that's fine
 ;Algorithm is as follows:
 ; let max be 0 
 ; let count be 0
@@ -10,46 +10,34 @@
 ;  flip the first 4 -> {1,3,2,4,5,6,7}, count++
 ;  if (count > max)
 ;     max = count
-; print max
+;  print max
 
 function fannkuch
   int max
   ptr buffer
   int length
+  int checksum
+  int sign
   ;r1, r2 - indexes of elements to be swapped
   ;r4 - count
   ;p0 - buffer
-  ;set up buffer:
-  movc r5, 7
+  ;set up buffer:  
+  movc r5, 12
+  setl fannkuch.length, r5
   newb p0, r5
+  addc r5, -1
+
+  .setup:  
+  setb p0, r5, r5
+  addc r5, -1
+  jcmpc r5, 0, $, .setup, .setup  
   
-  movc r5, '1'
-  movc r4, 0
-  setb p0, r4, r5
-  movc r5, '2'
-  movc r4, 1
-  setb p0, r4, r5
-  movc r5, '3'
-  movc r4, 2
-  setb p0, r4, r5
-  movc r5, '4'
-  movc r4, 3
-  setb p0, r4, r5
-  movc r5, '5'
-  movc r4, 4
-  setb p0, r4, r5
-  movc r5, '6'
-  movc r4, 5
-  setb p0, r4, r5
-  movc r5, '7'
-  movc r4, 6
-  setb p0, r4, r5
-  
+  movc r3, 1
+  setl fannkuch.sign, r3 
   movc r3, 0
   setl fannkuch.max, r3 ;let max be 0
+  setl fannkuch.checksum, r3 ;let checksum be 0
 
-  movc r3, 7
-  setl fannkuch.length, r3
   movc r4, 0
 
   ;save buffer
@@ -63,6 +51,16 @@ inputloop:
   jcmp r3, r4, $, notbigger, notbigger ;if count > max
   setl fannkuch.max, r4 ;then new max found
 notbigger:
+  ;checksum code - checksum not correct because permutation order is wrong... it matters not really
+  ;this still does the same work 
+  getl r3 fannkuch.sign
+  mul r4, r3
+  mulc r3, -1
+  setl fannkuch.sign, r3
+  getl r3 fannkuch.checksum
+  add r3, r4
+  setl fannkuch.checksum, r3
+  ;next permutation  
   call permute, fannkuch.buffer, 2
   ;out p0 
   setl fannkuch.buffer, r0
@@ -74,8 +72,7 @@ notbigger:
 pancake:
   movc r3, 0
   getb r2, p0, r3
-  addc r2, -49 ;ascii -> int - 1(convert to int-1 for an index)
-  jcmpc r2, 0, $, inputloop, $; if we read 1 then we are done (don't inc count)
+  jcmpc r2, 0, $, inputloop, $; if we read 0 then we are done (don't inc count)
   movc r1, 0
 flip:
   jcmp r1, r2, $, inccount, inccount
@@ -92,6 +89,8 @@ inccount:
 
 done:
   call i_to_s, fannkuch.max, 1
+  out p0
+  call i_to_s, fannkuch.checksum, 1
   out p0
 ret
 

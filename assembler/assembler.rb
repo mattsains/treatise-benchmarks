@@ -373,11 +373,13 @@ else
                       extra = -(6**(save_registers.length - b -1))
                     end
 
-                    save_registers.each_index {|index|
-                      save_reg_count -= 1
-                      reg_val += ((6**save_reg_count)*save_registers[index]).round
-                    }
-                    reg_val += extra                    
+                    if (!conventional)
+                      save_registers.each_index {|index|
+                        save_reg_count -= 1
+                        reg_val += ((6**save_reg_count)*save_registers[index]).round
+                      }
+                      reg_val += extra
+                    end
                   end
                 end
               end
