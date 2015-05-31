@@ -8,7 +8,7 @@ function primesieve
   setl .n, r1
 
   movc r5, 2
-  newo r0, r3 ;r0: linked list
+  newo r0, r5 ;r0: linked list
   mov r4, r0 ;save linked list so we can rewind
 
   ;Fill linked list with n elements

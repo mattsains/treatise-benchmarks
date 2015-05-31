@@ -22,7 +22,7 @@ function fannkuch
   ;r4 - count
   ;p0 - buffer
   ;set up buffer:  
-  movc r5, 12
+  movc r5, 11
   setl fannkuch.length, r5
   newb p0, r5
   addc r5, -1
@@ -66,8 +66,8 @@ notbigger:
   setl fannkuch.buffer, r0
   call bufferclone, fannkuch.buffer, 2
   movc r4, 0 ;reset count to 0 for new input
-  getb r3, p0, r4
-  jcmpc r3, 3, $, done, $ ;lt should never happen
+  getb r3, p0, r4 ;check if we are done with perms
+  jcmpc r3, 127, $, done, $ ;lt should never happen
 
 pancake:
   movc r3, 0
@@ -135,9 +135,9 @@ function permute
   ;r1 = l
 
   .doneperms:
-  movc r2, 3
+  movc r2, 127
   movc r1, 0
-  setb p0, r1, r2 ;buffer[0] = 0x3 (EOT)
+  setb p0, r1, r2 ;buffer[0] = 127
   jmp .end
 
   .swaprotate:
