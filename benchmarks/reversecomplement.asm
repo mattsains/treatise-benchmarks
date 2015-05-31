@@ -120,7 +120,7 @@ function reversecomplement
   movc r5, 0
   getb r0, r2, r5 ;r0=buffer[0]
   jcmpc r0, '>', $, .heading, $
-  jcmpc r0, 0, $, .heading, $ ;\0
+  jcmpc r0, 0x3, $, .heading, $ ;ASCII EOF
   ;heading goes off somewhere and rejoins at .loop
   setl .spillbuffer, r3
   getl r3, .spillpairs
