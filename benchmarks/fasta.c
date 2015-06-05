@@ -140,13 +140,13 @@ int main()
 
   char* text = ">ONE Homo sapiens alu";
   printf("%s\n", text);
-  makeRepeatFasta(ALU, 287, 2000); //n*2 = 2000
+  makeRepeatFasta(ALU, 287, 50000000); //n*2
 
   text = ">TWO IUB ambiguity codes";
   printf("%s\n", text);
-  makeRandomFasta(IUB, 15, 3000); //n*3 = 3000
+  makeRandomFasta(IUB, 15, 75000000); //n*3
 
   text = ">THREE Homo sapiens frequency";
   printf("%s\n", text);
-  makeRandomFasta(HomoSapiens, 4, 5000); //n*5 = 5000
+  makeRandomFasta(HomoSapiens, 4, 125000000); //n*5
 }
