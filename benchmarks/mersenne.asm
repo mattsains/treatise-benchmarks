@@ -29,7 +29,7 @@ function mersenne
   call i_to_s, .random_num, 1
   out r0
   addc r1, 1
-  jcmpc r1, 100, .loop, $, $ 
+  jcmpc r1, 100000000, .loop, $, $ 
 ret
 
 ; Intitialize the state array.

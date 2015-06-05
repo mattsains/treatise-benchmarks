@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+
 // Create a length 624 array to store the state of the generator
 unsigned int MT[624];
 int index = 0;
@@ -7,12 +10,34 @@ void initialize_generator(int seed);
 unsigned int extract_number();
 void generate_numbers();
 
+//until a GC is written, you should use this int to string function to introduce memory leaks
+char* i_to_s(int64_t i)
+{
+  char* str = malloc(21);
+  int index = 0;
+  if (i < 0) {
+    str[index++]='-';
+    i = -i;
+  }
+  int64_t mask = 1000000000000000000;
+  int printing = 0;
+  do {
+    char c = '0' + (i / mask);
+    printing = printing | (c != '0');
+    if (printing)
+      str[index++] = '0' + (i / mask);
+    i %= mask;
+    mask /= 10;
+  } while(i);
+  str[index] = '\0';
+  return str;
+} 
 
 int main()
 {
   initialize_generator(5489);
-  for (int i=0; i<100; i++) {
-    printf("%u\n", extract_number());
+  for (long i=0; i<100000000L; i++) {
+    printf("%s\n", i_to_s(extract_number()));
   }
   return 0;
 }
