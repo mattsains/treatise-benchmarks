@@ -39,14 +39,14 @@ int main()
  
   char buffer[256];
   char outbuffer[61];
-  char* sequence = malloc(11000);
-  int i=0;
+  char* sequence = malloc(524288000);
+  long i=0;
   while (fgets(buffer, 256, stdin)) {
     if (buffer[0]=='>' || buffer[0]=='\n'){
       if (i!=0){
         //reverse and print string
-        for (int j=i-1; j>=0; j-=60){
-          for (int k=0; k<60; k++)
+        for (long j=i-1; j>=0; j-=60){
+          for (long k=0; k<60; k++)
             if (j-k<0)
               outbuffer[k]='\0';
             else

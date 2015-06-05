@@ -106,7 +106,7 @@ function reversecomplement
   newa r2, r0
   movc r0, 61
   newa r3, r0
-  movc r0, 11000
+  movc r0, 524288000
   newa r4, r0
   setlp .spillpairs, r1
   ; r1: i (to be set)
