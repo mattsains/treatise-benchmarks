@@ -15,16 +15,19 @@
 function fannkuch
   int max
   ptr buffer
+  ptr buffer2
   int length
   int checksum
   int sign
   ;r1, r2 - indexes of elements to be swapped
   ;r4 - count
   ;p0 - buffer
-  ;set up buffer:  
-  movc r5, 12
+  ;set up buffer:
+  movc r5, 11
   setl fannkuch.length, r5
   newa r0, r5
+  newa r1, r5
+  setlp fannkuch.buffer2, r1
   addc r5, -1
 
   .setup:  
@@ -43,9 +46,8 @@ function fannkuch
   ;save buffer
   setlp fannkuch.buffer, r0
   ;copy it and mess with the copy only
-  call bufferclone, fannkuch.buffer, 2
-  
-  jmp .pancake
+  call buffercopy, fannkuch.buffer, 3
+  jmp pancake
   .inputloop:
   getl r3, fannkuch.max 
   jcmp r3, r4, $, .notbigger, .notbigger ;if count > max
@@ -61,13 +63,13 @@ function fannkuch
   add r3, r4
   setl fannkuch.checksum, r3
   ;next permutation  
-  call permute, fannkuch.buffer, 2
+  call permute, fannkuch.buffer, 3
   ;out r0 
   setlp fannkuch.buffer, r0
-  call bufferclone, fannkuch.buffer, 2
+  call buffercopy, fannkuch.buffer, 3
   movc r4, 0 ;reset count to 0 for new input
-  getb r3, r0, r4
-  jcmpc r3, 3, $, .done, $ ;lt should never happen
+  getb r3, r0, r4 ;check if we are done with perms
+  jcmpc r3, 127, $, .done, $ ;lt should never happen
 
   .pancake:
   movc r3, 0
@@ -96,9 +98,10 @@ ret
 
   ; generate permutations based on lexicographic order
   ; takes a buffer as input and returns the next permutation,
-  ; if done returns a buffer with first character: ASCII EOT (0x3)
+  ; if done returns a buffer with first character set to 127
 function permute
   ptr buffer
+  ptr buffer2 ;along for the ride because of weird call mechanism
   int length
   int start
 
@@ -115,15 +118,15 @@ function permute
   .largekloop:
   addc r1, -1 ; k
   addc r2, -1 ; k + 1
-  setl permute.start, r2 ;can i make this only happen once?
   jcmpc r1, 0, .doneperms, $, $ ;check if we are done
   getb r4, r0, r1 ;buffer[k]
   getb r5, r0, r2 ;buffer[k + 1]
-  jcmp r4, r5, .largelloop, .largekloop, .largekloop
+  jcmp r4, r5, $, .largekloop, .largekloop
   ;permute.start = k + 1
   ;r4 = buffer[k]
   ;r3 = last index
   ;r2 = k + 1
+  setl permute.start, p2 
   
   .largelloop:
   mov r1, r2 ;store current l
@@ -135,9 +138,9 @@ function permute
   ;r1 = l
 
   .doneperms:
-  movc r2, 3
+  movc r2, 127
   movc r1, 0
-  setb r0, r1, r2 ;buffer[0] = 0x3 (EOT)
+  setb r0, r1, r2 ;buffer[0] = 127
   jmp .end
 
   .swaprotate:
@@ -148,26 +151,27 @@ function permute
   getb r5, r0, r1 ;r5 = buffer[l]
   setb r0, r2, r5 ;buffer[k] = r5
   setb r0, r1, r4 ;buffer[l] = r4
-  setl permute.buffer, r0
-  setl permute.length, r3
-  call rotate, permute.buffer, 3
+  setlp permute.buffer, r0
+  setlp permute.length, r3
+  call rotate, permute.buffer, 4
   .end:
 ret
 
 function rotate
   ptr buffer
+  ptr buffer2
   int lastindex
   int start
-  getlp r0, rotate.buffer
+  getlp r5, rotate.buffer
   getl r2, rotate.lastindex ;end
   mov r3, r2
   addc r3, 1 ;end + 1
   getl r1, rotate.start ;start
   sub r3, r1
-  movp r5, r0 ;get out of way of remainder :'(
   divc r3, 2 ;length/2
-  movp r0, r5
+  mov r0, r5
   .rotloop:
+  jcmpc r3, 0, $, $, .end
   addc r3, -1
   getb r4, r0, r2
   getb r5, r0, r1
@@ -176,7 +180,8 @@ function rotate
   setb r0, r2, r5
   addc r2, -1
   addc r1, 1
-  jcmpc r3, 0, $, $, .rotloop
+  jmp .rotloop
+  .end:
 ret
 
 %include ../stdlib.asm

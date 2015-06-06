@@ -258,7 +258,6 @@ movc r5, 0
 setb r0, r1, r5
 ret
 
-
 ; buffer bufferclone(buffer a, int length)
 ; ====================================
 ; Returns a new buffer with a copy of the contents of a
