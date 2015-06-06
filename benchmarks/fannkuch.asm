@@ -24,11 +24,11 @@ function fannkuch
   ;set up buffer:  
   movc r5, 12
   setl fannkuch.length, r5
-  newb p0, r5
+  newa r0, r5
   addc r5, -1
 
   .setup:  
-  setb p0, r5, r5
+  setb r0, r5, r5
   addc r5, -1
   jcmpc r5, 0, $, .setup, .setup  
   
@@ -41,16 +41,16 @@ function fannkuch
   movc r4, 0
 
   ;save buffer
-  setl fannkuch.buffer, r0
+  setlp fannkuch.buffer, r0
   ;copy it and mess with the copy only
   call bufferclone, fannkuch.buffer, 2
   
-  jmp pancake
-inputloop:
+  jmp .pancake
+  .inputloop:
   getl r3, fannkuch.max 
-  jcmp r3, r4, $, notbigger, notbigger ;if count > max
+  jcmp r3, r4, $, .notbigger, .notbigger ;if count > max
   setl fannkuch.max, r4 ;then new max found
-notbigger:
+  .notbigger:
   ;checksum code - checksum not correct because permutation order is wrong... it matters not really
   ;this still does the same work 
   getl r3 fannkuch.sign
@@ -62,36 +62,36 @@ notbigger:
   setl fannkuch.checksum, r3
   ;next permutation  
   call permute, fannkuch.buffer, 2
-  ;out p0 
-  setl fannkuch.buffer, r0
+  ;out r0 
+  setlp fannkuch.buffer, r0
   call bufferclone, fannkuch.buffer, 2
   movc r4, 0 ;reset count to 0 for new input
-  getb r3, p0, r4
-  jcmpc r3, 3, $, done, $ ;lt should never happen
+  getb r3, r0, r4
+  jcmpc r3, 3, $, .done, $ ;lt should never happen
 
-pancake:
+  .pancake:
   movc r3, 0
-  getb r2, p0, r3
-  jcmpc r2, 0, $, inputloop, $; if we read 0 then we are done (don't inc count)
+  getb r2, r0, r3
+  jcmpc r2, 0, $, .inputloop, $; if we read 0 then we are done (don't inc count)
   movc r1, 0
-flip:
-  jcmp r1, r2, $, inccount, inccount
-  getb r3, p0, r2
-  getb r5, p0, r1
-  setb p0, r2, r5
-  setb p0, r1, r3
+  .flip:
+  jcmp r1, r2, $, .inccount, .inccount
+  getb r3, r0, r2
+  getb r5, r0, r1
+  setb r0, r2, r5
+  setb r0, r1, r3
   addc r1, 1
   addc r2, -1 
-  jmp flip 
-inccount:
+  jmp .flip 
+  .inccount:
   addc r4, 1
-  jmp pancake
+  jmp .pancake
 
-done:
+  .done:
   call i_to_s, fannkuch.max, 1
-  out p0
+  out r0
   call i_to_s, fannkuch.checksum, 1
-  out p0
+  out r0
 ret
 
   ; generate permutations based on lexicographic order
@@ -102,7 +102,7 @@ function permute
   int length
   int start
 
-  getl r0, permute.buffer
+  getlp r0, permute.buffer
   getl r3, permute.length ;k + 2
   mov r2, r3
   mov r1, r2
@@ -117,8 +117,8 @@ function permute
   addc r2, -1 ; k + 1
   setl permute.start, r2 ;can i make this only happen once?
   jcmpc r1, 0, .doneperms, $, $ ;check if we are done
-  getb r4, p0, r1 ;buffer[k]
-  getb r5, p0, r2 ;buffer[k + 1]
+  getb r4, r0, r1 ;buffer[k]
+  getb r5, r0, r2 ;buffer[k + 1]
   jcmp r4, r5, .largelloop, .largekloop, .largekloop
   ;permute.start = k + 1
   ;r4 = buffer[k]
@@ -130,24 +130,24 @@ function permute
   .largelloop2:
   jcmp r2, r3, $, .swaprotate, $ ;gt should never happen
   addc r2, 1
-  getb r5, p0, r2
+  getb r5, r0, r2
   jcmp r5, r4, .largelloop2, .largelloop2, .largelloop
   ;r1 = l
 
   .doneperms:
   movc r2, 3
   movc r1, 0
-  setb p0, r1, r2 ;buffer[0] = 0x3 (EOT)
+  setb r0, r1, r2 ;buffer[0] = 0x3 (EOT)
   jmp .end
 
   .swaprotate:
   getl r2, permute.start
   addc r2, -1 ;k
   ;swap buffer[k] and buffer[l]
-  getb r4, p0, r2 ;r4 = buffer[k]
-  getb r5, p0, r1 ;r5 = buffer[l]
-  setb p0, r2, r5 ;buffer[k] = r5
-  setb p0, r1, r4 ;buffer[l] = r4
+  getb r4, r0, r2 ;r4 = buffer[k]
+  getb r5, r0, r1 ;r5 = buffer[l]
+  setb r0, r2, r5 ;buffer[k] = r5
+  setb r0, r1, r4 ;buffer[l] = r4
   setl permute.buffer, r0
   setl permute.length, r3
   call rotate, permute.buffer, 3
@@ -158,22 +158,22 @@ function rotate
   ptr buffer
   int lastindex
   int start
-  getl r0, rotate.buffer
+  getlp r0, rotate.buffer
   getl r2, rotate.lastindex ;end
   mov r3, r2
   addc r3, 1 ;end + 1
   getl r1, rotate.start ;start
   sub r3, r1
-  mov r5, r0 ;get out of way of remainder :'(
+  movp r5, r0 ;get out of way of remainder :'(
   divc r3, 2 ;length/2
-  mov r0, r5
+  movp r0, r5
   .rotloop:
   addc r3, -1
-  getb r4, p0, r2
-  getb r5, p0, r1
+  getb r4, r0, r2
+  getb r5, r0, r1
   ;swap
-  setb p0, r1, r4
-  setb p0, r2, r5
+  setb r0, r1, r4
+  setb r0, r2, r5
   addc r2, -1
   addc r1, 1
   jcmpc r3, 0, $, $, .rotloop
