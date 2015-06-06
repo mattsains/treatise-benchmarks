@@ -262,13 +262,13 @@ ret
 
 ; buffer bufferclone(buffer a, int length)
 ; ====================================
-; Returns a new buffer with a copy of the contents of a
+; Returns a new buffer with a copy of the contents of 'a'
 ; result in r0, r5 preserved
 function bufferclone
   ptr a
   int length
 
-  getl r4, bufferclone.a
+  getl p4, bufferclone.a
   getl r1, bufferclone.length
   newb p0, r1
   .loop:
@@ -279,5 +279,28 @@ function bufferclone
   jmp .loop
 
   .end:
-ret  
+ret
+
+; buffer buffercopy(buffer a, buffer b, int length)
+; ================================================
+; copies and into b and returns b in r0
+function buffercopy
+  ptr a
+  ptr b
+  int length
+  getl p1, buffercopy.a
+  getl p0, buffercopy.b
+  getl r2, buffercopy.length
+
+  .loop:
+  addc r2, -1
+  jcmpc r2, 0, .end, $, $
+  getb r3, p1, r2
+  setb p0, r2, r3
+  jmp .loop
+
+  .end:
+ret
+
+  
   
