@@ -105,7 +105,7 @@ function permute
   int length
   int start
 
-  getl r0, permute.buffer
+  getl p0, permute.buffer
   getl r3, permute.length ;k + 2
   mov r2, r3
   mov r1, r2
@@ -162,14 +162,14 @@ function rotate
   ptr buffer2
   int lastindex
   int start
-  getl r5, rotate.buffer
+  getl p5, rotate.buffer
   getl r2, rotate.lastindex ;end
   mov r3, r2
   addc r3, 1 ;end + 1
   getl r1, rotate.start ;start
   sub r3, r1
   divc r3, 2 ;length/2
-  mov r0, r5
+  mov r0, p5
   .rotloop:
   jcmpc r3, 0, $, $, .end
   addc r3, -1
