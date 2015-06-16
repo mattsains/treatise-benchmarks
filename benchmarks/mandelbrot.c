@@ -44,7 +44,7 @@ void main() {
             bits = bits << 1;
             do
             {
-                int temp = 2*Zr*Zi/SCALE + Ci;
+                int temp = 2*Zr*Zi/SCALE + Ci; //this line changed from original to be closer to benchmark
                 int Tr = (Zr*Zr - Zi*Zi)/SCALE + Cr;
                 Zi = temp;
                 Zr = Tr;
@@ -54,7 +54,6 @@ void main() {
                     break;
                 }
             } while (--i > 0);
-            printf("%d\n", i);
             x++;
 
             if ((x & 0x07) == 0)
