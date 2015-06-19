@@ -110,7 +110,6 @@ function mandel
   movc r0, 0
   setl mandel.bits, r0
   ;r1, r3 and r4 are free to use at this point (phew)
-  ;check BODMAS?
   movc r1, 2
   mul r1, r5 ;2*SCALE
   mul r1, r2 ;2*SCALE*y

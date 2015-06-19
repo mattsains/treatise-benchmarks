@@ -13,7 +13,7 @@ call A, 0, 2
 ; takes about 3 minutes
 setl .output, r0
 call i_to_s, .output, 1
-out r0
+print r0
 ret
 
 function A

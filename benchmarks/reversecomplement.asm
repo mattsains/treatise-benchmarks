@@ -183,7 +183,7 @@ function reversecomplement
   movc r0, 60
   movc r2, 0
   setb r3, r0, r2 ;outbuffer[60]='\0'
-  out r3
+  print r3
   addc r5, -60 ;for(_,_,j-=60)
   jmp .jloop
   .jend:
@@ -195,7 +195,7 @@ function reversecomplement
   movc r0, 0
   getb r0, r2, r0 ;buffer[0]
   jcmpc r0, '>', .end, $, .end
-  out r2
+  print r2
   jmp .loop
 
   .end:

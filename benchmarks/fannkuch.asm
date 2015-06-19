@@ -23,7 +23,7 @@ function fannkuch
   ;r4 - count
   ;p0 - buffer
   ;set up buffer:
-  movc r5, 11
+  movc r5, 7
   setl fannkuch.length, r5
   newb p0, r5
   newb p1, r5
@@ -91,9 +91,9 @@ inccount:
 
 done:
   call i_to_s, fannkuch.max, 1
-  out p0
+  print p0
   call i_to_s, fannkuch.checksum, 1
-  out p0
+  print p0
 ret
 
   ; generate permutations based on lexicographic order
@@ -171,7 +171,7 @@ function rotate
   divc r3, 2 ;length/2
   mov r0, p5
   .rotloop:
-  jcmpc r3, 0, $, $, .end
+  jcmpc r3, 0, .end, .end, $
   addc r3, -1
   getb r4, p0, r2
   getb r5, p0, r1

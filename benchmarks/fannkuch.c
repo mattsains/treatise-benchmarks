@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
         buffercopy(buffer, buffer2, length);
 
         checksum += count * sign;
+       
         sign *= -1;
         count = 0;
     }

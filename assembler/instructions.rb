@@ -27,7 +27,7 @@ instructions +=
 
 #instructions with just one operand (register)
 instructions +=
-  ['in', 'out', 'null']
+  ['in', 'out', 'null', 'print']
   .collect {|opcode| Inst.new opcode, [:reg]}
 
 #instructions with just one operand (immediate)
@@ -143,7 +143,8 @@ offsets =
     'newb' => 1240,
     'err' => 1270,
     'in' => 1271,
-    'out' => 1277
+    'out' => 1277,
+    'print' => 1283
   }
 
 # Yeah this is bad but it is still the nicest way

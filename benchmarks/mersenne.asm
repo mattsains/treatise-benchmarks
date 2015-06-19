@@ -27,7 +27,7 @@ function mersenne
   setl .index_or_seed, r0
   setl .random_num, r5
   call i_to_s, .random_num, 1
-  out r0
+  print r0
   addc r1, 1
   jcmpc r1, 1000000, .loop, $, $ 
 ret

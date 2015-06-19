@@ -50,7 +50,7 @@ function primesieve
   geto r0, r1, r5
   setl primesieve.x, r0
   call i_to_s, primesieve.x, 1
-  out r0
+  print r0
   movc r5, 1; next
   geto r1, r1, r5
   jmp .ploop

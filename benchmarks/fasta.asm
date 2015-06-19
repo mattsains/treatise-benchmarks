@@ -1149,7 +1149,7 @@ function fasta
   movc r2, 21
   movc r3, 0
   setb r1, r2, r3
-  out r1
+  print r1
 
   movc r0, 2000
   setl .ALU_n, r0
@@ -1233,7 +1233,7 @@ function fasta
   movc r2, 24
   movc r3, 0
   setb r1, r2, r3
-  out r1
+  print r1
   
   movc r5, 42 ;seed for RNG
   
@@ -1334,7 +1334,7 @@ function fasta
   movc r2, 29
   movc r3, 0
   setb r1, r2, r3
-  out r1
+  print r1
   
   movc r0, 5000
   setl .HomoSapiens_n, r0
@@ -1469,7 +1469,7 @@ function makeRandomFasta
   jcmpc r0, 964, .if2else, $, $
   movc r4, 0
   setb r1, r0, r4
-  out r1
+  print r1
   movc r0, 0
   jmp .if2end
   .if2else:
@@ -1488,7 +1488,7 @@ function makeRandomFasta
   jcmpc r0, 0, $, .end, $
   movc r3, 0
   setb r1, r0, r3
-  out r1
+  print r1
   .end:
 ret
 
@@ -1550,7 +1550,7 @@ function makeRepeatFasta
   jcmpc r0, 964, .if3else, $, $
   movc r4, 0
   setb r1, r0, r4
-  out r1
+  print r1
   movc r0, 0
   jmp .if3end
   .if3else:
@@ -1570,6 +1570,6 @@ function makeRepeatFasta
   jcmpc r0, 0, $, .end, $
   movc r3, 0
   setb r1, r0, r3
-  out r1
+  print r1
   .end:
 ret
