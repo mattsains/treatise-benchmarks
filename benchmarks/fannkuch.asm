@@ -47,7 +47,7 @@ function fannkuch
   setlp fannkuch.buffer, r0
   ;copy it and mess with the copy only
   call buffercopy, fannkuch.buffer, 3
-  jmp pancake
+  jmp .pancake
   .inputloop:
   getl r3, fannkuch.max 
   jcmp r3, r4, $, .notbigger, .notbigger ;if count > max
@@ -64,7 +64,7 @@ function fannkuch
   setl fannkuch.checksum, r3
   ;next permutation  
   call permute, fannkuch.buffer, 3
-  ;out r0 
+  ;out p0 
   setlp fannkuch.buffer, r0
   call buffercopy, fannkuch.buffer, 3
   movc r4, 0 ;reset count to 0 for new input
@@ -152,7 +152,7 @@ function permute
   setb r0, r2, r5 ;buffer[k] = r5
   setb r0, r1, r4 ;buffer[l] = r4
   setlp permute.buffer, r0
-  setlp permute.length, r3
+  setl permute.length, r3
   call rotate, permute.buffer, 4
   .end:
 ret
@@ -169,7 +169,7 @@ function rotate
   getl r1, rotate.start ;start
   sub r3, r1
   divc r3, 2 ;length/2
-  mov r0, r5
+  movp r0, r5
   .rotloop:
   jcmpc r3, 0, $, $, .end
   addc r3, -1
@@ -185,6 +185,3 @@ function rotate
 ret
 
 %include ../stdlib.asm
-  
-
-
