@@ -70,7 +70,7 @@ function Print
 ret
 
 ;You can include files:
-%include file.asm
+;%include file.asm
 
 ;TODO
 ; Make ri/pi different registers and do type checking on it.
