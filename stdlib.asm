@@ -275,7 +275,7 @@ ret
 
 ; buffer buffercopy(buffer a, buffer b, int length)
 ; ================================================
-; copies and into b and returns b in r0
+; copies a into b and returns b in r0
 function buffercopy
   ptr a
   ptr b
