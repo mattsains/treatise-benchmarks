@@ -42,14 +42,8 @@ xor r1, r3 ;inverts r1
 addc r1, 1
 addc r2, 1
 .positive:
-movc r3, 18 ;first possible digit of int64
-movc r4, 10
-setl i_to_s.ten, r4
-setl i_to_s.pow, r3
-mov r4, r0
-call pow, i_to_s.ten, 2
-mov r3, r0
-mov r5, r4
+mov r5, r0
+movc r3, 0xde0b6b3a7640000 ;10^18
 mov r0, r1
 ;to recap:
 ;r0: i
@@ -132,11 +126,11 @@ function s_to_i
   ;check for minus or plus
   movc r4, 0 ;digit count = 0
   jcmpc r2, 43, .error, .digit, $
-  jcmpc r2, 45, .error, .minus, $
+  jcmpc r2, 45, .error, .neg, $
   addc r0, -1 ;reset this to hand over to .digit
   jmp .digit
   
-.minus:
+.neg:
   movc r3, -1
   setl s_to_i.minus, r3
 .digit:
@@ -276,5 +270,26 @@ function bufferclone
   setb r0, r1, r2
   jmp .loop
   
+  .end:
+ret
+
+; buffer buffercopy(buffer a, buffer b, int length)
+; ================================================
+; copies and into b and returns b in r0
+function buffercopy
+  ptr a
+  ptr b
+  int length
+  getl p1, buffercopy.a
+  getl p0, buffercopy.b
+  getl r2, buffercopy.length
+
+  .loop:
+  addc r2, -1
+  jcmpc r2, 0, .end, $, $
+  getb r3, p1, r2
+  setb p0, r2, r3
+  jmp .loop
+
   .end:
 ret
