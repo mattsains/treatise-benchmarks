@@ -431,13 +431,21 @@ class Program
     @output_bytes[start_address+1] = opcode >> 8
   end
 
+  def register_str(n)
+    if USE_REAL_REG_NAMES
+      $r[n]
+    else
+      "r#{n}"
+    end
+  end
+  
   def generate_opcode(instruction, reg_arguments, start_address)
     message = instruction.opcode + "(#{hex instruction.offset}) "
     if USE_CONVENTIONAL_BYTECODE
       opcode = instruction.offset << 9
       reg_arguments.each_with_index {|reg,i|
         opcode |= reg << (i*3)
-        message += "r#{reg} "
+        message += "#{register_str(reg)} "
       }
       @display_messages[start_address] = message
       return opcode
@@ -445,7 +453,7 @@ class Program
       opcode = instruction.offset
       reg_arguments.each_with_index {|reg,i|
         opcode += reg * (6**i)
-        message += "#{reg*(6**i)}(r#{reg}) "
+        message += "#{register_str(reg)}(#{reg*(6**i)})"
       }
       @display_messages[start_address] = message
       return opcode
