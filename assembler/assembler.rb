@@ -165,10 +165,11 @@ class Program
         end
 
         string = parts[1][1, parts[1].length-2] #remove quotes
-        write_bytes(string.length, 8)
+        write_bytes(string.length + 1, 8)
         string.each_byte {|c|
           @output_bytes << c
         }
+        @output_bytes << 0
       else
         error(line, "Invalid syntax for ds")
       end
