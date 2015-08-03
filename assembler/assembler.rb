@@ -440,9 +440,10 @@ class Program
   end
   
   def generate_opcode(instruction, reg_arguments, start_address)
-    message = instruction.opcode + "(#{hex instruction.offset}) "
+
     if USE_CONVENTIONAL_BYTECODE
-      opcode = instruction.offset << 9
+      opcode = $instructions.index(instruction) << 9
+      message = instruction.opcode + "(#{hex opcode}) "
       reg_arguments.each_with_index {|reg,i|
         opcode |= reg << (i*3)
         message += "#{register_str(reg)} "
@@ -451,6 +452,7 @@ class Program
       return opcode
     else
       opcode = instruction.offset
+      message = instruction.opcode + "(#{hex opcode}) "
       reg_arguments.each_with_index {|reg,i|
         opcode += reg * (6**i)
         message += "#{register_str(reg)}(#{reg*(6**i)})"
