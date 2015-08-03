@@ -306,14 +306,14 @@ class Program
         reg_arguments << register
       when :imm16
         if is_int? argument
-          @display_messages[@output_bytes.length] = "imm: #{argument}"
+          @display_messages[@output_bytes.length] = "  imm: #{argument}"
           write_bytes(Integer(argument), 2)
         elsif argument =~ /'[^']'/
-          @display_messages[@output_bytes.length] = "imm: #{argument}"
+          @display_messages[@output_bytes.length] = "  imm: #{argument}"
           argument = argument[1].ord
           write_byte(argument, 2)
         elsif argument == '$'
-          @display_messages[@output_bytes.length] = "imm: $"
+          @display_messages[@output_bytes.length] = "  imm: $"
           next_instr_immediates << @output_bytes.length
 
           @output_bytes << 0
@@ -328,7 +328,7 @@ class Program
           if not argument =~ /([a-zA-Z]\w*.)?[a-zA-Z]\w*/
             error(line, "Argument #{argument} is not valid")
           end
-          @display_messages[@output_bytes.length] = "imm: #{argument}"
+          @display_messages[@output_bytes.length] = "  imm: #{argument}"
           @fixups << Fixup.new(start_address, @output_bytes.length, argument)
 
           @output_bytes << 0
@@ -337,7 +337,7 @@ class Program
       when :immptr64
         if is_int? argument
           argument = Integer(argument)
-          @display_messages[@output_bytes.length] = "imm: &#{argument}"
+          @display_messages[@output_bytes.length] = "  imm: &#{argument}"
           if not @constants.include? argument
             @constants << argument
           end
@@ -352,7 +352,7 @@ class Program
           @output_bytes << 0
           @output_bytes << 0
         elsif argument =~ /'[^']'/
-          @display_messages[@output_bytes.length] = "imm: &#{argument}"
+          @display_messages[@output_bytes.length] = "  imm: &#{argument}"
           argument = argument[1].ord
           if not @constants.include? argument
             @constants << argument
@@ -366,7 +366,7 @@ class Program
           @output_bytes << 0
         elsif argument == '$'
           next_instr_immediates << @output_bytes.length
-          @display_messages[@output_bytes.length] = "imm: $"
+          @display_messages[@output_bytes.length] = "  imm: $"
 
           @output_bytes << 0
           @output_bytes << 0
@@ -380,7 +380,7 @@ class Program
           if not argument =~ /([a-zA-Z]\w*.)?[a-zA-Z]\w*/
             error(line, "Argument #{argument} is not valid")
           end
-          @display_messages[@output_bytes.length] = "imm: #{argument}"
+          @display_messages[@output_bytes.length] = "  imm: #{argument}"
           @fixups << Fixup.new(start_address, @output_bytes.length, argument)
 
           @output_bytes << 0
@@ -389,14 +389,14 @@ class Program
       when :arbimm16
         for i in (op_pos+1)...parts.length
           if is_int? argument
-            @display_messages[@output_bytes.length] = "imm: #{argument}"
+            @display_messages[@output_bytes.length] = "  imm: #{argument}"
             write_bytes(Integer(argument), 2)
           elsif argument =~ /'[^']'/
-            @display_messages[@output_bytes.length] = "imm: #{argument}"
+            @display_messages[@output_bytes.length] = "  imm: #{argument}"
             argument = argument[1].ord
             write_byte(argument, 2)
           elsif argument == '$'
-            @display_messages[@output_bytes.length] = "imm: $"
+            @display_messages[@output_bytes.length] = "  imm: $"
             next_instr_immediates << @output_bytes.length
 
             @output_bytes << 0
@@ -411,7 +411,7 @@ class Program
             if not argument =~ /([a-zA-Z]\w*.)?[a-zA-Z]\w*/
               error(line, "Argument #{argument} is not valid")
             end
-            @display_messages[@output_bytes.length] = "imm: #{argument}"
+            @display_messages[@output_bytes.length] = "  imm: #{argument}"
             @fixups << Fixup.new(start_address, @output_bytes.length, argument)
 
             @output_bytes << 0
@@ -500,12 +500,17 @@ class Program
   def display
     for i in 0...(@output_bytes.length-1)
       next if i % 2 != 0
+
+      if @abs_symbols.any? {|name,addr| addr == i and not @fake_symbols.include? name }
+        puts ""
+        
+        @abs_symbols.each {|name, addr|
+          if addr == i and not @fake_symbols.include? name
+            puts "#{name}:"
+          end
+        }
+      end
       
-      @abs_symbols.each {|name, addr|
-        if addr == i and not @fake_symbols.include? name
-          puts "#{name}:"
-        end
-      }
       word = (@output_bytes[i+1] << 8)|@output_bytes[i]
       print "  #{hex i}: #{hex word} "
       if @display_messages.has_key? i
