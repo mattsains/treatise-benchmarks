@@ -159,7 +159,7 @@ instructions.each {|instruction|
 # Sort instructions by their numbers
 instructions.sort_by! {|instruction| instruction.offset }
 
-instructions.each_index {|i| instructions[i].conventional_offset = i}
+#instructions.each_index {|i| instructions[i].conventional_offset = i}
 
 # Validate instructions
 instructions.each {|instruction|
