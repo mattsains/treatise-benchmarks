@@ -1151,7 +1151,7 @@ function fasta
   setb r1, r2, r3
   print r1
 
-  movc r0, 2000
+  movc r0, 50000000
   setl .ALU_n, r0
   call makeRepeatFasta, .ALU, 3
 
@@ -1237,7 +1237,7 @@ function fasta
   
   movc r5, 42 ;seed for RNG
   
-  movc r0, 3000
+  movc r0, 75000000
   setl .IUB_n, r0
   call makeRandomFasta, .IUB, 3
 
@@ -1336,7 +1336,7 @@ function fasta
   setb r1, r2, r3
   print r1
   
-  movc r0, 5000
+  movc r0, 125000000
   setl .HomoSapiens_n, r0
   call makeRandomFasta, .HomoSapiens, 3
 ret

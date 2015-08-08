@@ -48,8 +48,6 @@ function primesieve
   jnullp r1, $, .pend
   movc r5, 0 ; value
   geto r0, r1, r5
-  setl primesieve.x, r0
-  call i_to_s, primesieve.x, 1
   print r0
   movc r5, 1; next
   geto r1, r1, r5
@@ -91,5 +89,3 @@ function removeMultiples
   .end:
   getl r0, .list
 ret
-
-%include ../stdlib.asm

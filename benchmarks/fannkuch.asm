@@ -90,9 +90,9 @@ inccount:
   jmp pancake
 
 done:
-  call i_to_s, fannkuch.max, 1
+  getl r0, fannkuch.max
   print p0
-  call i_to_s, fannkuch.checksum, 1
+  getl r0 fannkuch.checksum
   print p0
 ret
 

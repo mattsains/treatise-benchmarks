@@ -12,6 +12,6 @@ int A(int n, int m)
 int main(int argc, char* argv[])
 {
    //fails because stack is too deep
-   printf("%d", A(1,1));
+   printf("%d", A(1,4));
    return 0;
 }

@@ -106,7 +106,7 @@ function reversecomplement
   newb r2, r0
   movc r0, 61
   newb r3, r0
-  movc r0, 11000
+  movc r0, 524288000
   newb r4, r0
   setl .spillpairs, r1
   ; r1: i (to be set)
@@ -120,7 +120,7 @@ function reversecomplement
   movc r5, 0
   getb r0, r2, r5 ;r0=buffer[0]
   jcmpc r0, '>', $, .heading, $
-  jcmpc r0, 0x3, $, .heading, $ ;ASCII EOF
+  jcmpc r0, 0, $, .heading, $ ;0 for EOF
   ;heading goes off somewhere and rejoins at .loop
   setl .spillbuffer, r3
   getl r3, .spillpairs

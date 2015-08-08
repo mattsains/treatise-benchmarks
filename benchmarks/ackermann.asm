@@ -11,8 +11,6 @@ call A, 0, 2
 ;r0 now has the result of the ackermann function
 ;should be 65533 for (4,1)
 ; takes about 3 minutes
-setl .output, r0
-call i_to_s, .output, 1
 print r0
 ret
 
@@ -47,5 +45,3 @@ function A
     setl A.m, r1
     call A, A.m, 2
 ret
-
-%include ../stdlib.asm
