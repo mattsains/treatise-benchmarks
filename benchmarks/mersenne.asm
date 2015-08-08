@@ -4,7 +4,6 @@
 function mersenne
   ptr state
   int index_or_seed
-  int random_num
 
   movc r1, 5489 ;put seed here
   movc r2, 4992 ;624*8
@@ -25,9 +24,7 @@ function mersenne
   ;r2 - index
   call extract_number, .state, 2
   setl .index_or_seed, r0
-  setl .random_num, r5
-  call i_to_s, .random_num, 1
-  out r0
+  print r5
   addc r1, 1
   jcmpc r1, 100000000, .loop, $, $ 
 ret

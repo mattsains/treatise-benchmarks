@@ -90,10 +90,10 @@ function fannkuch
   jmp .pancake
 
   .done:
-  call i_to_s, fannkuch.max, 1
-  out r0
-  call i_to_s, fannkuch.checksum, 1
-  out r0
+  getl r0, fannkuch.max
+  print r0
+  getl r0, fannkuch.checksum
+  print r0
 ret
 
   ; generate permutations based on lexicographic order

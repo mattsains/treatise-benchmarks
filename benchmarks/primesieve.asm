@@ -40,9 +40,7 @@ function primesieve
   .ploop:
   jnullp r1, $, .pend
   getm r0, r1, LinkedList.value
-  setl primesieve.x, r0
-  call i_to_s, primesieve.x, 1
-  out r0
+  print r0
   getmp r1, r1, LinkedList.next
   jmp .ploop
   .pend:

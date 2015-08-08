@@ -166,7 +166,7 @@ function fasta
 
   ;">Homosapiens alu"
   movsc r1, homo_alu_str
-  out r1
+  printp r1
 
   movc r0, 50000000
   setl .ALU_n, r0
@@ -174,7 +174,7 @@ function fasta
 
   ;">TWO IUB ambiguity codes"
   movsc r1, iub_code_str
-  out r1
+  printp r1
 
   movc r0, 75000000
   setl .IUB_n, r0
@@ -182,7 +182,7 @@ function fasta
 
   ;">THREE Homo sapiens frequency"
   movsc r1, homo_freq_str
-  out r1
+  printp r1
   
   movc r0, 125000000
   setl .HomoSapiens_n, r0
@@ -315,7 +315,7 @@ function makeRandomFasta
   jcmpc r0, 964, .if2else, $, $
   movc r4, 0
   setb r1, r0, r4
-  out r1
+  printp r1
   movc r0, 0
   jmp .if2end
   .if2else:
@@ -334,7 +334,7 @@ function makeRandomFasta
   jcmpc r0, 0, $, .end, $
   movc r3, 0
   setb r1, r0, r3
-  out r1
+  printp r1
   .end:
 ret
 
@@ -396,7 +396,7 @@ function makeRepeatFasta
   jcmpc r0, 964, .if3else, $, $
   movc r4, 0
   setb r1, r0, r4
-  out r1
+  printp r1
   movc r0, 0
   jmp .if3end
   .if3else:
@@ -416,6 +416,6 @@ function makeRepeatFasta
   jcmpc r0, 0, $, .end, $
   movc r3, 0
   setb r1, r0, r3
-  out r1
+  printp r1
   .end:
 ret
