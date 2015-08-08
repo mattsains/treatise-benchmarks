@@ -50,7 +50,7 @@ class BetterFile < File
   def eof?
     super & (@next == nil)
   end
-    
+  
   def peek
     if eof?
       return nil
@@ -299,7 +299,7 @@ class Program
         if not argument.start_with?('r','p')
           error(line, "Expected a register in position #{op_pos+1}")
         end
-        register = Integer(argument[1...argument.length])
+        register = Integer(argument[1...argument.length]) #grab the number of the argument
         if register > 5
           error(line, "Expected a register in position #{op_pos+1}")
         end
@@ -425,6 +425,7 @@ class Program
       @output_bytes[imm] = displacement & 0xFF
       @output_bytes[imm+1] = displacement >> 8
     }
+
     
     opcode = generate_opcode(instruction, reg_arguments, start_address)
     @output_bytes[start_address] = opcode & 0xFF
@@ -438,9 +439,13 @@ class Program
       "r#{n}"
     end
   end
-  
-  def generate_opcode(instruction, reg_arguments, start_address)
 
+  #instruction... has opcode which is a name
+  #               has offset which is where the instruction is in terms of
+  #               has_disallow_trivial between which is which regs cant be same
+
+  #reg_arguments... is a list of arguments given to the current instruction
+  def generate_opcode(instruction, reg_arguments, start_address)
     if USE_CONVENTIONAL_BYTECODE
       opcode = $instructions.index(instruction) << 9
       message = instruction.opcode + "(#{hex opcode}) "
@@ -452,12 +457,39 @@ class Program
       return opcode
     else
       opcode = instruction.offset
-      message = instruction.opcode + "(#{hex opcode}) "
-      reg_arguments.each_with_index {|reg,i|
-        opcode += reg * (6**i)
-        message += "#{register_str(reg)}(#{reg*(6**i)})"
-      }
-      @display_messages[start_address] = message
+      save_reg_count = reg_arguments.count
+      
+      if instruction.disallow_trivial_between.empty? #normal case => use matt's code
+        message = instruction.opcode + "(#{hex opcode}) "
+        reg_arguments.each_with_index {|reg,i|
+          opcode += reg * (6**i)
+          message += "#{register_str(reg)}(#{reg*(6**i)})"
+        }
+        
+      else #do some kind of magic
+        message = instruction.opcode + "begin magic" 
+        #this code assumes the trivial case can only happen between 2 registers
+        a = instruction.disallow_trivial_between[0]
+        b = instruction.disallow_trivial_between[1]
+        if reg_arguments[a] == reg_arguments[b]
+          error inst, "Error - #{instruction.opcode} given illegal arguments "
+        end
+        reg_arguments[0, a + 1].each_index{|i|
+          reg_arguments[i] *= (5.0/6.0)
+        }
+        extra = 0
+        if reg_arguments[b] > reg_arguments[a]
+          extra = -(6**(reg_arguments.length - b -1))
+        end
+
+        reg_arguments.each_index {|index|
+          save_reg_count -= 1 #i dont remember why i do this :'(
+          message += "#{((6**save_reg_count)*reg_arguments[index]).round}"
+          opcode += ((6**save_reg_count)*reg_arguments[index]).round
+        }
+        opcode += extra
+
+      end
       return opcode
     end
   end
