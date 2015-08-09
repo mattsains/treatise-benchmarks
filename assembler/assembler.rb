@@ -236,7 +236,6 @@ class Program
       length += 1
     end
     write_bytes(length, 8)
-    bitmaps.each {|bitmap| write_bytes(bitmap, 8)}
   end
 
   def parse_object(file)
@@ -265,7 +264,6 @@ class Program
       length += 1
     end
     write_bytes(length, 8)
-    bitmaps.each {|bitmap| write_bytes(bitmap, 8)}
   end
 
   def parse_instruction(file)
@@ -420,7 +418,7 @@ class Program
         end
       end
     } # end of all expected operands
-    displacement = @output_bytes.length - start_address
+    displacement = (@output_bytes.length - start_address)/2
     next_instr_immediates.each {|imm|
       @output_bytes[imm] = displacement & 0xFF
       @output_bytes[imm+1] = displacement >> 8
@@ -456,6 +454,7 @@ class Program
       @display_messages[start_address] = message
       return opcode
     else
+      message = instruction.opcode
       opcode = instruction.offset
       save_reg_count = reg_arguments.count
       
@@ -467,7 +466,7 @@ class Program
         }
         
       else #do some kind of magic
-        message = instruction.opcode + "begin magic" 
+        message = instruction.opcode 
         #this code assumes the trivial case can only happen between 2 registers
         a = instruction.disallow_trivial_between[0]
         b = instruction.disallow_trivial_between[1]
@@ -484,12 +483,12 @@ class Program
 
         reg_arguments.each_index {|index|
           save_reg_count -= 1 #i dont remember why i do this :'(
-          message += "#{((6**save_reg_count)*reg_arguments[index]).round}"
           opcode += ((6**save_reg_count)*reg_arguments[index]).round
         }
         opcode += extra
-
+        message += "(#{hex opcode})"
       end
+      @display_messages[start_address] = message        
       return opcode
     end
   end
@@ -515,11 +514,11 @@ class Program
         error(fixup.name, "Symbol #{fixup.name} does not exist")
       end
       if @fake_symbols.include? fixup.name
-        offset = @abs_symbols[fixup.name]
+        offset = @abs_symbols[fixup.name] #dont refer to a constant somewhere just a value we keep track of => dont divide this
       else
-        offset = @abs_symbols[fixup.name] - fixup.instr_base_addr
+        offset = (@abs_symbols[fixup.name] - fixup.instr_base_addr)/2 #const_addr - pc_addr = offset(in bytes) => i want half of this
       end
-
+      #store as normal, nothing to change here
       @output_bytes[fixup.fixup_addr] = offset & 0xFF
       @output_bytes[fixup.fixup_addr+1] = offset >> 8
     }

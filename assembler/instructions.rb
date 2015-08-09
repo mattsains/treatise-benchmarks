@@ -55,7 +55,7 @@ instructions +=
   .collect {|opcode| Inst.new opcode, [:reg, :immptr64]}
 
 instructions +=
-  ['shlc','shrc','sarc','getl']
+  ['shlc','shrc','sarc','getl', 'movsc']
   .collect {|opcode| Inst.new opcode, [:reg, :imm16]}
 
 #instructions with one ptr and one register
@@ -79,7 +79,7 @@ instructions +=
 
 #strange instructions
 instructions +=
-  ['switch']
+  ['swtch']
   .collect {|opcode| Inst.new opcode, [:reg, :imm16, :arbimm16]}
 
 instructions +=
@@ -133,7 +133,7 @@ offsets =
     'setb' => 978,
     'jmp' => 1158,
     'jmpf' => 1159,
-    'switch' => 1160,
+    'swtch' => 1160,
     'jcmp' => 1166,
     'jcmpc' => 1196,
     'jnullp' => 1202,
@@ -141,10 +141,11 @@ offsets =
     'ret' => 1209,
     'newo' => 1210,
     'newb' => 1240,
-    'err' => 1270,
-    'in' => 1271,
-    'out' => 1277,
-    'print' => 1283
+    'movsc' => 1270,
+    'err' => 1276,
+    'in' => 1277,
+    'out' => 1283,
+    'print' => 1289
   }
 
 # Yeah this is bad but it is still the nicest way
@@ -154,7 +155,10 @@ def is_int? str
 end
 
 instructions.each {|instruction|
-  instruction.offset = offsets[instruction.opcode]}
+  instruction.offset = offsets[instruction.opcode]
+#  puts instruction.opcode
+#  puts instruction.offset
+}
 
 # Sort instructions by their numbers
 instructions.sort_by! {|instruction| instruction.offset }
