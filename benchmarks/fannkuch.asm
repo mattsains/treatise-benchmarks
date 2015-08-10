@@ -171,7 +171,7 @@ function rotate
   divc r3, 2 ;length/2
   movp r0, r5
   .rotloop:
-  jcmpc r3, 0, $, $, .end
+  jcmpc r3, 0, .end, .end, $
   addc r3, -1
   getb r4, r0, r2
   getb r5, r0, r1

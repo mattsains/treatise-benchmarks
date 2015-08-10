@@ -14,9 +14,9 @@ function mersenne
   call initialize, .state, 2  ; initialize(MT[624], 5489) -> off we go to line 37ish
 
   ;generate some numbers
-  movc r1, 0                  
+  movc r1, 0
   ;using r1 just for the 0 here:
-  setl .index_or_seed, r1    
+  setl .index_or_seed, r1
   
   .loop:
   ;recap:

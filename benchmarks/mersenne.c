@@ -10,34 +10,11 @@ void initialize_generator(int seed);
 unsigned int extract_number();
 void generate_numbers();
 
-//until a GC is written, you should use this int to string function to introduce memory leaks
-char* i_to_s(int64_t i)
-{
-  char* str = malloc(21);
-  int index = 0;
-  if (i < 0) {
-    str[index++]='-';
-    i = -i;
-  }
-  int64_t mask = 1000000000000000000;
-  int printing = 0;
-  do {
-    char c = '0' + (i / mask);
-    printing = printing | (c != '0');
-    if (printing)
-      str[index++] = '0' + (i / mask);
-    i %= mask;
-    mask /= 10;
-  } while(i);
-  str[index] = '\0';
-  return str;
-} 
-
 int main()
 {
   initialize_generator(5489);
   for (long i=0; i<100000000L; i++) {
-    printf("%s\n", i_to_s(extract_number()));
+    printf("%d\n", extract_number());
   }
   return 0;
 }
@@ -60,8 +37,8 @@ unsigned int extract_number() {
 
   unsigned int y = MT[index];
   y = y ^ (y>>11);
-  y = y ^ ((y<<11) & 2636928640); // 0x9d2c5680
-  y = y ^ ((y<<15) & 4022730752); // 0xefc60000
+  y = y ^ (((long)y<<11) & 2636928640); // 0x9d2c5680
+  y = y ^ (((long)y<<15) & 4022730752); // 0xefc60000
   y = y ^ ((y>>18));
   index = (index + 1) % 624;
   return y;
