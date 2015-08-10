@@ -458,11 +458,12 @@ class Program
       opcode = instruction.offset
       save_reg_count = reg_arguments.count
       
-      if instruction.disallow_trivial_between.empty? #normal case => use matt's code
-        message = instruction.opcode + "(#{hex opcode}) "
-        reg_arguments.each_with_index {|reg,i|
-          opcode += reg * (6**i)
-          message += "#{register_str(reg)}(#{reg*(6**i)})"
+      if instruction.disallow_trivial_between.empty? 
+        message = instruction.opcode + "(#{hex opcode}) "          
+        reg_arguments.each_with_index {|reg, index|
+          save_reg_count -= 1
+          opcode += (6**save_reg_count)*reg
+          message += "#{register_str(reg)}(#{(6**save_reg_count)*reg})"
         }
         
       else #do some kind of magic
