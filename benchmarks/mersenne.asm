@@ -25,13 +25,12 @@ function mersenne
   ;r2 - index
   call extract_number, .state, 2
   setl .index_or_seed, r0
-  mov r0, r5
-  print r0
+  print r5
   addc r1, 1
   jcmpc r1, 100000000, .loop, $, $ 
 ret
 
-; Intitialize the state array.
+;; Intitialize the state array.
 ; Returns the state array ptr
 function initialize
   ptr state

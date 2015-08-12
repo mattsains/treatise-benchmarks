@@ -4,7 +4,7 @@
 
 // Create a length 624 array to store the state of the generator
 unsigned int MT[624];
-int index = 0;
+int ind = 0;
 
 void initialize_generator(int seed);
 unsigned int extract_number();
@@ -21,26 +21,26 @@ int main()
       
 // Initialize the generator from a seed
 void initialize_generator(int seed) {
-  index = 0;
+  ind = 0;
   MT[0] = seed;
   for (int i=1; i<=623; i++) { // loop over each element
     MT[i] = 0xffffffff & (1812433253 * (MT[i-1] ^ (MT[i-1]>>30)) + i); // 0x6c078965
   }
 }
 
-// Extract a tempered pseudorandom number based on the index-th value,
+// Extract a tempered pseudorandom number based on the ind-th value,
 // calling generate_numbers() every 624 numbers
 unsigned int extract_number() {
-  if (index == 0) {
+  if (ind == 0) {
     generate_numbers();
   }
 
-  unsigned int y = MT[index];
+  unsigned int y = MT[ind];
   y = y ^ (y>>11);
   y = y ^ (((long)y<<11) & 2636928640); // 0x9d2c5680
   y = y ^ (((long)y<<15) & 4022730752); // 0xefc60000
   y = y ^ ((y>>18));
-  index = (index + 1) % 624;
+  ind = (ind + 1) % 624;
   return y;
 }
 

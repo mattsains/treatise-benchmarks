@@ -38,7 +38,7 @@ function mandel
   setl mandel.limit, r3
   
 
-  ;;Add pbm format
+  ;Add pbm format
   newb p3, r0 ;REP|newb|newa
   movc r1, 0 ;r1 is index for now
   movc r2, 'P'
