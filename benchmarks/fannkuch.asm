@@ -23,7 +23,7 @@ function fannkuch
   ;r4 - count
   ;p0 - buffer
   ;set up buffer:
-  movc r5, 7
+  movc r5, 11
   setl fannkuch.length, r5
   newb p0, r5
   newb p1, r5
