@@ -3,7 +3,7 @@ function ackermann
   movc r0, 4 ;m
   movc r5, 1 ;n
   call A, 0, 0
-  ;r0 now has the result of the ackermann function
+  ;r5 now has the result of the ackermann function
   ;should be 65533 for (4,1)
   ; takes about 3 minutes
   print r5
